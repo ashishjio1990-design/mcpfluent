@@ -57,6 +57,17 @@ jobs:
             sleep 8
             mvn test -Dgroups=regression -DdeviceName=emulator-5554 -DappiumUrl=http://127.0.0.1:4723 -Dplatform=android -Dapp=$GITHUB_WORKSPACE/apps/fluenthealth.apk --no-transfer-progress
 
+      - name: Generate Allure report
+        if: always()
+        run: mvn allure:report --no-transfer-progress
+
+      - name: Upload Allure report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: target/site/allure-maven-plugin/
+
       - name: Upload Surefire reports
         if: always()
         uses: actions/upload-artifact@v4

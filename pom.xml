@@ -21,6 +21,7 @@
         <logback.version>1.5.8</logback.version>
         <jackson.version>2.18.0</jackson.version>
         <maven.surefire.version>3.5.1</maven.surefire.version>
+        <allure.version>2.29.1</allure.version>
     </properties>
 
     <dependencyManagement>
@@ -108,6 +109,14 @@
             <artifactId>jackson-databind</artifactId>
             <version>${jackson.version}</version>
         </dependency>
+
+        <!-- Allure JUnit 5 integration -->
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-junit5</artifactId>
+            <version>${allure.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -125,7 +134,17 @@
                         <platform>${platform}</platform>
                         <deviceName>${deviceName}</deviceName>
                         <appiumUrl>${appiumUrl}</appiumUrl>
+                        <allure.results.directory>${project.build.directory}/allure-results</allure.results.directory>
                     </systemPropertyVariables>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-maven</artifactId>
+                <version>2.14.0</version>
+                <configuration>
+                    <reportVersion>${allure.version}</reportVersion>
+                    <resultsDirectory>${project.build.directory}/allure-results</resultsDirectory>
                 </configuration>
             </plugin>
             <plugin>
