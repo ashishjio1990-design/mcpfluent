@@ -29,30 +29,35 @@ jobs:
       - name: Install Appium
         run: npm install -g appium && appium driver install uiautomator2
 
-      - name: Enable KVM for emulator acceleration
+      - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
+          ls -la /dev/kvm
 
       - name: Run regression tests on Android emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 30
+          api-level: 29
           arch: x86_64
-          target: google_apis
+          target: default
           profile: pixel_4
           avd-name: regression_avd
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          cores: 2
+          ram-size: 2048M
+          heap-size: 512M
+          force-avd-creation: true
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-metrics
           disable-animations: true
           script: |
-            DEVICE_SERIAL=$(adb devices | grep -v "List of devices" | awk '{print $1}' | head -1)
-            echo "Device: $DEVICE_SERIAL"
+            adb wait-for-device
+            adb devices
             appium --address 127.0.0.1 --port 4723 --log-level error &
-            sleep 5
+            sleep 8
             mvn test \
               -Dgroups=regression \
-              -DdeviceName="$DEVICE_SERIAL" \
+              -DdeviceName=emulator-5554 \
               -DappiumUrl=http://127.0.0.1:4723 \
               -Dplatform=android \
               --no-transfer-progress
