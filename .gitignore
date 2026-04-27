@@ -1,0 +1,6 @@
+target/
+*.class
+*.log
+apps/*.apk
+.idea/
+*.iml

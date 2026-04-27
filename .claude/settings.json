@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(java -version)",
+      "Bash(mvn -version)",
+      "Bash(node -version)",
+      "Bash(appium driver *)",
+      "mcp__appium__generate_locators",
+      "mcp__appium__appium_find_element",
+      "mcp__appium__appium_get_page_source",
+      "Read(//c/Users/ashish.taralkar/.m2/repository/org/seleniumhq/selenium/selenium-api/**)",
+      "Bash(python3 -c ' *)",
+      "mcp__appium__appium_session_management",
+      "Read(//c/Users/ashish.taralkar/Downloads/**)",
+      "Bash(adb -s emulator-5554 install -r \"c:/Users/ashish.taralkar/Downloads/mcp fluent/apps/fluenthealth.apk\")",
+      "Bash(adb devices *)",
+      "Bash(adb -s emulator-5554 shell pm list packages)"
+    ]
+  }
+}
