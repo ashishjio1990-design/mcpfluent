@@ -55,12 +55,7 @@ jobs:
             adb devices
             appium --address 127.0.0.1 --port 4723 --log-level error &
             sleep 8
-            mvn test \
-              -Dgroups=regression \
-              -DdeviceName=emulator-5554 \
-              -DappiumUrl=http://127.0.0.1:4723 \
-              -Dplatform=android \
-              --no-transfer-progress
+            mvn test -Dgroups=regression -DdeviceName=emulator-5554 -DappiumUrl=http://127.0.0.1:4723 -Dplatform=android --no-transfer-progress
 
       - name: Upload Surefire reports
         if: always()
