@@ -92,7 +92,7 @@ jobs:
               gh.write(f'passed={passed}\nfailed={failed}\nerrors={errors}\nskipped={skipped}\ntotal={total}\n')
           EOF
 
-      - name: Generate PDF report
+      - name: Generate PDF and email report
         if: always()
         run: |
           python3 scripts/generate_pdf_report.py
@@ -102,6 +102,11 @@ jobs:
             --run-all-compositor-stages-before-draw \
             --virtual-time-budget=3000 \
             "file://$(pwd)/allure-summary.html"
+          {
+            echo 'EMAIL_HTML<<HTMLEOF'
+            cat allure-email.html
+            echo HTMLEOF
+          } >> "$GITHUB_ENV"
 
       - name: Send email with Allure report
         if: always()
@@ -111,27 +116,10 @@ jobs:
           server_port: ${{ secrets.MAIL_PORT }}
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "[${{ job.status == 'success' && 'PASSED' || 'FAILED' }}] Regression Run #${{ github.run_number }} | ✅ ${{ steps.results.outputs.passed }} / ❌ ${{ steps.results.outputs.failed }} / Total ${{ steps.results.outputs.total }}"
+          subject: "[${{ job.status == 'success' && 'PASSED' || 'FAILED' }}] Regression Run #${{ github.run_number }} | ✅ ${{ steps.results.outputs.passed }} Passed / ❌ ${{ steps.results.outputs.failed }} Failed / Total ${{ steps.results.outputs.total }}"
           to: ${{ secrets.MAIL_TO }}
           from: Fluent Regression CI <${{ secrets.MAIL_USERNAME }}>
-          body: |
-            Regression Test Run Summary
-            ─────────────────────────────
-            Run #   : ${{ github.run_number }}
-            Branch  : ${{ github.ref_name }}
-            Commit  : ${{ github.sha }}
-            Status  : ${{ job.status }}
-
-            Test Results
-            ─────────────────────────────
-            ✅ Passed  : ${{ steps.results.outputs.passed }}
-            ❌ Failed  : ${{ steps.results.outputs.failed }}
-            ⚠️ Errors  : ${{ steps.results.outputs.errors }}
-            ⏭ Skipped : ${{ steps.results.outputs.skipped }}
-            📊 Total   : ${{ steps.results.outputs.total }}
-
-            The full Allure HTML report (with pie chart) is attached.
-            View run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          html_body: ${{ env.EMAIL_HTML }}
           attachments: allure-report.pdf
 
       - name: Upload Appium log
