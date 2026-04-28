@@ -102,11 +102,6 @@ jobs:
             --run-all-compositor-stages-before-draw \
             --virtual-time-budget=3000 \
             "file://$(pwd)/allure-summary.html"
-          {
-            echo 'EMAIL_HTML<<HTMLEOF'
-            cat allure-email.html
-            echo HTMLEOF
-          } >> "$GITHUB_ENV"
 
       - name: Send email with Allure report
         if: always()

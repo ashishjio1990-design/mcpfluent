@@ -263,4 +263,15 @@ with open('allure-summary.html', 'w') as f:
 with open('allure-email.html', 'w') as f:
     f.write(email_html)
 
+# Write EMAIL_HTML to $GITHUB_ENV using a random delimiter so the bash
+# heredoc approach (which breaks when the file has no trailing newline) is
+# never needed in the workflow.
+github_env = os.environ.get('GITHUB_ENV', '')
+if github_env:
+    import random, string
+    delim = 'EMAILDELIM_' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=12))
+    with open(github_env, 'a') as env_file:
+        env_file.write(f'EMAIL_HTML<<{delim}\n{email_html}\n{delim}\n')
+    print("EMAIL_HTML written to GITHUB_ENV")
+
 print(f"Generated PDF HTML and email HTML ({passed} passed, {failed} failed, {skipped} skipped)")
