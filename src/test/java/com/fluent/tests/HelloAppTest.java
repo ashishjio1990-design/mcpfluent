@@ -33,7 +33,7 @@ public class HelloAppTest extends BaseTest {
         options.setDeviceName(deviceName);
         options.setAutomationName("UiAutomator2");
         options.setAppPackage("com.example.hello");
-        options.setAppActivity("com.example.hello.MainActivity");
+        options.setAppActivity(".MainActivity");
         options.setNoReset(true);
         options.setAutoGrantPermissions(true);
         return new DesiredCapabilities(options.asMap());
