@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e
 
+TAG=${TEST_TAG:-regression}
+CLASSES_ARG=""
+if [ -n "${TEST_CLASSES:-}" ]; then
+  CLASSES_ARG="-Dtest=$TEST_CLASSES"
+fi
+
 adb wait-for-device
 adb devices
 
@@ -17,7 +23,8 @@ for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
 done
 
 mvn test \
-  -Dgroups=regression \
+  -Dgroups="$TAG" \
+  $CLASSES_ARG \
   -DdeviceName=emulator-5554 \
   -DappiumUrl=http://127.0.0.1:4723 \
   -Dplatform=android \

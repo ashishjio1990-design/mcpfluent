@@ -1,0 +1,184 @@
+name: Parallel Regression Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Test tag to run (e.g. regression, smoke)'
+        required: false
+        default: 'regression'
+        type: string
+      emulator_count:
+        description: 'Number of parallel emulators'
+        required: false
+        default: '2'
+        type: choice
+        options: ['1', '2', '3', '4']
+
+# ── Job 1: discover tagged tests and split into shards ─────────────────────
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.split.outputs.matrix }}
+      tag: ${{ steps.params.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - id: params
+        run: echo "tag=${{ inputs.tag }}" >> $GITHUB_OUTPUT
+
+      - id: split
+        run: python3 scripts/split_tests.py "${{ inputs.tag }}" "${{ inputs.emulator_count }}"
+
+# ── Job 2: run each shard on its own emulator ──────────────────────────────
+  test:
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Appium
+        run: npm install -g appium && appium driver install uiautomator2
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          ls -la /dev/kvm
+
+      - name: Set shard parameters
+        run: |
+          echo "TEST_TAG=${{ needs.prepare.outputs.tag }}" >> $GITHUB_ENV
+          echo "TEST_CLASSES=${{ matrix.tests }}" >> $GITHUB_ENV
+
+      - name: Run shard ${{ matrix.shard }} — ${{ matrix.tests }}
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          arch: x86_64
+          target: default
+          profile: pixel_4
+          avd-name: shard_${{ matrix.shard }}_avd
+          cores: 2
+          ram-size: 2048M
+          heap-size: 512M
+          force-avd-creation: true
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-metrics
+          disable-animations: true
+          script: bash scripts/run_tests.sh
+
+      - name: Upload allure results (shard ${{ matrix.shard }})
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-shard-${{ matrix.shard }}
+          path: target/allure-results/
+          retention-days: 1
+
+      - name: Upload Appium log (shard ${{ matrix.shard }})
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: appium-log-shard-${{ matrix.shard }}
+          path: appium.log
+          retention-days: 14
+
+# ── Job 3: merge results, generate report, send email ─────────────────────
+  report:
+    needs: test
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Download all shard results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: allure-results-shard-*
+          path: target/allure-results
+          merge-multiple: true
+
+      - name: Generate combined Allure report
+        run: |
+          npm install -g allure-commandline --silent
+          allure generate target/allure-results --clean -o target/site/allure-report
+
+      - name: Upload Allure report
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report-parallel
+          path: target/site/allure-report/
+          retention-days: 14
+
+      - name: Parse combined results
+        id: results
+        run: |
+          python3 - <<'EOF'
+          import json, glob, os
+          passed = failed = skipped = 0
+          for f in glob.glob('target/allure-results/*-result.json'):
+              try:
+                  s = json.load(open(f)).get('status', '')
+                  if s == 'passed':               passed  += 1
+                  elif s in ('failed', 'broken'):  failed  += 1
+                  elif s == 'skipped':             skipped += 1
+              except Exception:
+                  pass
+          total = passed + failed + skipped
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as gh:
+              gh.write(f'passed={passed}\nfailed={failed}\nskipped={skipped}\ntotal={total}\n')
+          EOF
+
+      - name: Generate PDF and email report
+        run: |
+          python3 scripts/generate_pdf_report.py
+          google-chrome --headless --no-sandbox --disable-gpu \
+            --print-to-pdf=$(pwd)/allure-report.pdf \
+            --no-pdf-header-footer \
+            --run-all-compositor-stages-before-draw \
+            --virtual-time-budget=3000 \
+            "file://$(pwd)/allure-summary.html"
+          {
+            echo 'EMAIL_HTML<<HTMLEOF'
+            cat allure-email.html
+            echo HTMLEOF
+          } >> "$GITHUB_ENV"
+
+      - name: Send email with combined report
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.MAIL_SERVER }}
+          server_port: ${{ secrets.MAIL_PORT }}
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "[Parallel/${{ inputs.emulator_count }}] Run #${{ github.run_number }} | ✅ ${{ steps.results.outputs.passed }} / ❌ ${{ steps.results.outputs.failed }} / Total ${{ steps.results.outputs.total }}"
+          to: ${{ secrets.MAIL_TO }}
+          from: Fluent Regression CI <${{ secrets.MAIL_USERNAME }}>
+          html_body: ${{ env.EMAIL_HTML }}
+          attachments: allure-report.pdf
