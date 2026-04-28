@@ -1,0 +1,25 @@
+#!/bin/bash
+set -e
+
+adb wait-for-device
+adb devices
+
+appium --address 127.0.0.1 --port 4723 --log-level info > "$GITHUB_WORKSPACE/appium.log" 2>&1 &
+
+echo "Waiting for Appium to start..."
+for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
+  if curl -s http://127.0.0.1:4723/status > /dev/null 2>&1; then
+    echo "Appium ready after attempt $i"
+    break
+  fi
+  echo "Attempt $i/15: not ready, waiting 3s..."
+  sleep 3
+done
+
+mvn test \
+  -Dgroups=regression \
+  -DdeviceName=emulator-5554 \
+  -DappiumUrl=http://127.0.0.1:4723 \
+  -Dplatform=android \
+  -Dapp="$GITHUB_WORKSPACE/apps/fluenthealth.apk" \
+  --no-transfer-progress
