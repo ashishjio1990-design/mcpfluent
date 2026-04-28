@@ -14,6 +14,7 @@ public class PageManager {
     private FluentHomePage fluentHomePage;
     private SettingPage settingPage;
     private EnterPinPage enterPinPage;
+    private HelloMainPage helloMainPage;
 
     public PageManager() {
         createAccountPage = new CreateAccountPage();
@@ -28,6 +29,7 @@ public class PageManager {
         fluentHomePage = new FluentHomePage();
         settingPage = new SettingPage();
         enterPinPage = new EnterPinPage();
+        helloMainPage = new HelloMainPage();
     }
 
     public CreateAccountPage createAccountPage() {
@@ -76,5 +78,9 @@ public class PageManager {
 
     public EnterPinPage enterPinPage() {
         return enterPinPage;
+    }
+
+    public HelloMainPage helloMainPage() {
+        return helloMainPage;
     }
 }

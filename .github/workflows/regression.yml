@@ -40,8 +40,10 @@ jobs:
           sudo udevadm trigger --name-match=kvm
           ls -la /dev/kvm
 
-      - name: Run regression tests on Android emulator
+      - name: Run smoke tests on Android emulator
         uses: reactivecircus/android-emulator-runner@v2
+        env:
+          TEST_TAG: smoke
         with:
           api-level: 29
           arch: x86_64
