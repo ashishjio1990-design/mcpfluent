@@ -32,9 +32,13 @@ public class HelloAppTest extends BaseTest {
         if (deviceName.isEmpty()) deviceName = ConfigLoader.get("android.device.name", "emulator-5554");
         options.setDeviceName(deviceName);
         options.setAutomationName("UiAutomator2");
+        String ws = System.getenv("GITHUB_WORKSPACE");
+        String defaultApp = (ws != null && !ws.isEmpty()) ? ws + "/apps/hello-v1.apk" : "apps/hello-v1.apk";
+        String appPath = System.getProperty("helloApp", defaultApp);
+        options.setApp(appPath);
         options.setAppPackage("com.example.hello");
-        options.setAppActivity(".MainActivity");
-        options.setNoReset(true);
+        options.setAppActivity("com.example.hello.MainActivity");
+        options.setNoReset(false);
         options.setAutoGrantPermissions(true);
         return new DesiredCapabilities(options.asMap());
     }
