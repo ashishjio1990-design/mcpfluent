@@ -1,0 +1,113 @@
+name: Firebase Smoke Tests
+
+on:
+  repository_dispatch:
+    types: [firebase-build]   # triggered by scripts/trigger_github_action.sh
+  workflow_dispatch:          # manual trigger from GitHub UI
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Appium
+        run: npm install -g appium && appium driver install uiautomator2
+
+      - name: Install Python dependencies
+        run: pip install google-auth requests
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          ls -la /dev/kvm
+
+      - name: Download latest APK from Firebase App Distribution
+        env:
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+        run: |
+          python3 scripts/download_firebase_apk.py apps/firebase-latest.apk
+          echo "FIREBASE_APK=$GITHUB_WORKSPACE/apps/firebase-latest.apk" >> $GITHUB_ENV
+
+      - name: Run smoke tests on Android emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          TEST_TAG: smoke
+          FIREBASE_APK: ${{ env.FIREBASE_APK }}
+        with:
+          api-level: 29
+          arch: x86_64
+          target: default
+          profile: pixel_4
+          avd-name: firebase_smoke_avd
+          cores: 2
+          ram-size: 2048M
+          heap-size: 512M
+          force-avd-creation: true
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-metrics
+          disable-animations: true
+          script: bash scripts/run_tests.sh
+
+      - name: Generate Allure report
+        if: always()
+        run: |
+          npm install -g allure-commandline --silent
+          allure generate target/allure-results --clean -o target/site/allure-report
+
+      - name: Upload Allure report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report-firebase-smoke
+          path: target/site/allure-report/
+          retention-days: 14
+
+      - name: Generate PDF and email report
+        if: always()
+        run: |
+          python3 scripts/generate_pdf_report.py
+          google-chrome --headless --no-sandbox --disable-gpu \
+            --print-to-pdf=$(pwd)/allure-report.pdf \
+            --no-pdf-header-footer \
+            --run-all-compositor-stages-before-draw \
+            --virtual-time-budget=3000 \
+            "file://$(pwd)/allure-summary.html"
+
+      - name: Send email with smoke report
+        if: always()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.MAIL_SERVER }}
+          server_port: ${{ secrets.MAIL_PORT }}
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "[Firebase Smoke] Run #${{ github.run_number }} | ✅ ${{ env.REPORT_PASSED }} Passed / ❌ ${{ env.REPORT_FAILED }} Failed / Total ${{ env.REPORT_TOTAL }}"
+          to: ${{ secrets.MAIL_TO }}
+          from: Fluent Regression CI <${{ secrets.MAIL_USERNAME }}>
+          html_body: ${{ env.EMAIL_HTML }}
+          attachments: allure-report.pdf
+
+      - name: Upload Appium log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: appium-log-firebase-smoke
+          path: appium.log
+          retention-days: 14

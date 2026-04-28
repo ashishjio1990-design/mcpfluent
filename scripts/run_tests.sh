@@ -7,6 +7,14 @@ if [ -n "${TEST_CLASSES:-}" ]; then
   CLASSES_ARG="-Dtest=$TEST_CLASSES"
 fi
 
+# If a Firebase APK was downloaded, use it for both Fluent Health and Hello app tests.
+# Otherwise fall back to the checked-in APK paths.
+if [ -n "${FIREBASE_APK:-}" ]; then
+  APP_ARG="-Dapp=$FIREBASE_APK -DhelloApp=$FIREBASE_APK"
+else
+  APP_ARG="-Dapp=$GITHUB_WORKSPACE/apps/fluenthealth.apk"
+fi
+
 adb wait-for-device
 adb devices
 
@@ -28,5 +36,5 @@ mvn test \
   -DdeviceName=emulator-5554 \
   -DappiumUrl=http://127.0.0.1:4723 \
   -Dplatform=android \
-  -Dapp="$GITHUB_WORKSPACE/apps/fluenthealth.apk" \
+  $APP_ARG \
   --no-transfer-progress
