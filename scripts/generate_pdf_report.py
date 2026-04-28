@@ -271,7 +271,13 @@ if github_env:
     import random, string
     delim = 'EMAILDELIM_' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=12))
     with open(github_env, 'a') as env_file:
+        # Email HTML body
         env_file.write(f'EMAIL_HTML<<{delim}\n{email_html}\n{delim}\n')
-    print("EMAIL_HTML written to GITHUB_ENV")
+        # Counts — same source as the email body so subject always matches
+        env_file.write(f'REPORT_PASSED={passed}\n')
+        env_file.write(f'REPORT_FAILED={failed}\n')
+        env_file.write(f'REPORT_SKIPPED={skipped}\n')
+        env_file.write(f'REPORT_TOTAL={total}\n')
+    print(f"EMAIL_HTML and counts written to GITHUB_ENV")
 
 print(f"Generated PDF HTML and email HTML ({passed} passed, {failed} failed, {skipped} skipped)")

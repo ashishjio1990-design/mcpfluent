@@ -70,28 +70,6 @@ jobs:
           path: target/site/allure-report/
           retention-days: 14
 
-      - name: Parse test results
-        if: always()
-        id: results
-        run: |
-          python3 - <<'EOF'
-          import xml.etree.ElementTree as ET, glob, os
-          passed = failed = errors = skipped = 0
-          for f in glob.glob('target/surefire-reports/TEST-*.xml'):
-              r = ET.parse(f).getroot()
-              t  = int(r.get('tests',     0))
-              fl = int(r.get('failures',  0))
-              er = int(r.get('errors',    0))
-              sk = int(r.get('skipped',   0))
-              passed  += t - fl - er - sk
-              failed  += fl
-              errors  += er
-              skipped += sk
-          total = passed + failed + errors + skipped
-          with open(os.environ['GITHUB_OUTPUT'], 'a') as gh:
-              gh.write(f'passed={passed}\nfailed={failed}\nerrors={errors}\nskipped={skipped}\ntotal={total}\n')
-          EOF
-
       - name: Generate PDF and email report
         if: always()
         run: |
@@ -111,7 +89,7 @@ jobs:
           server_port: ${{ secrets.MAIL_PORT }}
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "[${{ job.status == 'success' && 'PASSED' || 'FAILED' }}] Regression Run #${{ github.run_number }} | ✅ ${{ steps.results.outputs.passed }} Passed / ❌ ${{ steps.results.outputs.failed }} Failed / Total ${{ steps.results.outputs.total }}"
+          subject: "[${{ job.status == 'success' && 'PASSED' || 'FAILED' }}] Regression Run #${{ github.run_number }} | ✅ ${{ env.REPORT_PASSED }} Passed / ❌ ${{ env.REPORT_FAILED }} Failed / Total ${{ env.REPORT_TOTAL }}"
           to: ${{ secrets.MAIL_TO }}
           from: Fluent Regression CI <${{ secrets.MAIL_USERNAME }}>
           html_body: ${{ env.EMAIL_HTML }}

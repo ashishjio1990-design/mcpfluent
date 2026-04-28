@@ -136,25 +136,6 @@ jobs:
           path: target/site/allure-report/
           retention-days: 14
 
-      - name: Parse combined results
-        id: results
-        run: |
-          python3 - <<'EOF'
-          import json, glob, os
-          passed = failed = skipped = 0
-          for f in glob.glob('target/allure-results/*-result.json'):
-              try:
-                  s = json.load(open(f)).get('status', '')
-                  if s == 'passed':               passed  += 1
-                  elif s in ('failed', 'broken'):  failed  += 1
-                  elif s == 'skipped':             skipped += 1
-              except Exception:
-                  pass
-          total = passed + failed + skipped
-          with open(os.environ['GITHUB_OUTPUT'], 'a') as gh:
-              gh.write(f'passed={passed}\nfailed={failed}\nskipped={skipped}\ntotal={total}\n')
-          EOF
-
       - name: Generate PDF and email report
         run: |
           python3 scripts/generate_pdf_report.py
@@ -172,7 +153,7 @@ jobs:
           server_port: ${{ secrets.MAIL_PORT }}
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "[Parallel/${{ inputs.emulator_count }}] Run #${{ github.run_number }} | ✅ ${{ steps.results.outputs.passed }} / ❌ ${{ steps.results.outputs.failed }} / Total ${{ steps.results.outputs.total }}"
+          subject: "[Parallel/${{ inputs.emulator_count }}] Run #${{ github.run_number }} | ✅ ${{ env.REPORT_PASSED }} Passed / ❌ ${{ env.REPORT_FAILED }} Failed / Total ${{ env.REPORT_TOTAL }}"
           to: ${{ secrets.MAIL_TO }}
           from: Fluent Regression CI <${{ secrets.MAIL_USERNAME }}>
           html_body: ${{ env.EMAIL_HTML }}
