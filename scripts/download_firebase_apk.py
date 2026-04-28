@@ -69,5 +69,11 @@ with requests.get(binary_uri, stream=True) as r:
 
 size_mb = os.path.getsize(output_path) / 1024 / 1024
 print(f"Done — {size_mb:.2f} MB saved to {output_path}")
-print(f"::set-output name=apk_version::{version}")
-print(f"::set-output name=apk_build::{build}")
+
+# Write version info to GITHUB_ENV so subsequent steps and report can use it
+github_env = os.environ.get('GITHUB_ENV', '')
+if github_env:
+    with open(github_env, 'a') as env_file:
+        env_file.write(f'APK_VERSION={version}\n')
+        env_file.write(f'APK_BUILD={build}\n')
+    print(f"APK_VERSION={version} and APK_BUILD={build} written to GITHUB_ENV")

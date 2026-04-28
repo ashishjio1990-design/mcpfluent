@@ -25,10 +25,13 @@ total   = len(results)
 COLORS = {'passed': '#97cc64', 'failed': '#fd5a3e',
           'broken': '#fd5a3e', 'skipped': '#aaaaaa', 'unknown': '#aaaaaa'}
 
-run_id = os.environ.get('GITHUB_RUN_NUMBER', 'local')
-branch = os.environ.get('GITHUB_REF_NAME',   'local')
-sha    = (os.environ.get('GITHUB_SHA', '') or '')[:7]
-ts     = datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')
+run_id      = os.environ.get('GITHUB_RUN_NUMBER', 'local')
+branch      = os.environ.get('GITHUB_REF_NAME',   'local')
+sha         = (os.environ.get('GITHUB_SHA', '') or '')[:7]
+ts          = datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')
+apk_version = os.environ.get('APK_VERSION', '')
+apk_build   = os.environ.get('APK_BUILD',   '')
+version_label = f'v{apk_version} (build {apk_build})' if apk_version else ''
 
 # ── SVG donut chart (for PDF) ──────────────────────────────────────────────
 def pie_path(cx, cy, r, start_deg, end_deg, color):
@@ -103,6 +106,7 @@ pdf_html = f"""<!DOCTYPE html>
 <body>
   <h1>Regression Test Report</h1>
   <div class="meta">Run #{run_id} &nbsp;·&nbsp; Branch: {branch} &nbsp;·&nbsp; Commit: {sha} &nbsp;·&nbsp; {ts}</div>
+  {'<div class="meta" style="margin-top:4px"><strong>App version installed on emulator:</strong> ' + version_label + '</div>' if version_label else ''}
   <div class="summary">
     {build_pie()}
     <div class="stats">
@@ -173,6 +177,7 @@ email_html = f"""<!DOCTYPE html>
       <div style="font-size:12px;color:#a0aec0;margin-top:6px">
         Run #{run_id} &nbsp;·&nbsp; Branch: {branch} &nbsp;·&nbsp; Commit: {sha} &nbsp;·&nbsp; {ts}
       </div>
+      {'<div style="font-size:12px;color:#68d391;margin-top:6px;font-weight:600">&#x1F4F1; App installed on emulator: ' + version_label + '</div>' if version_label else ''}
     </td>
   </tr>
 

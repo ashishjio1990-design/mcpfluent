@@ -18,6 +18,15 @@ fi
 adb wait-for-device
 adb devices
 
+echo "=========================================="
+if [ -n "${APK_VERSION:-}" ]; then
+  echo "  Installing APK version : $APK_VERSION (build $APK_BUILD)"
+  echo "  APK path               : ${FIREBASE_APK:-$GITHUB_WORKSPACE/apps/fluenthealth.apk}"
+else
+  echo "  Installing checked-in APK (no Firebase version)"
+fi
+echo "=========================================="
+
 appium --address 127.0.0.1 --port 4723 --log-level info > "$GITHUB_WORKSPACE/appium.log" 2>&1 &
 
 echo "Waiting for Appium to start..."

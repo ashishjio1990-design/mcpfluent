@@ -46,6 +46,15 @@ jobs:
           python3 scripts/download_firebase_apk.py apps/firebase-latest.apk
           echo "FIREBASE_APK=$GITHUB_WORKSPACE/apps/firebase-latest.apk" >> $GITHUB_ENV
 
+      - name: Log APK version being installed on emulator
+        run: |
+          echo "=========================================="
+          echo "  APK version : ${{ env.APK_VERSION }}"
+          echo "  Build number: ${{ env.APK_BUILD }}"
+          echo "  APK path    : ${{ env.FIREBASE_APK }}"
+          echo "  APK size    : $(du -sh ${{ env.FIREBASE_APK }} | cut -f1)"
+          echo "=========================================="
+
       - name: Run smoke tests on Android emulator
         uses: reactivecircus/android-emulator-runner@v2
         env:
@@ -98,7 +107,7 @@ jobs:
           server_port: ${{ secrets.MAIL_PORT }}
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "[Firebase Smoke] Run #${{ github.run_number }} | ✅ ${{ env.REPORT_PASSED }} Passed / ❌ ${{ env.REPORT_FAILED }} Failed / Total ${{ env.REPORT_TOTAL }}"
+          subject: "[Firebase Smoke] v${{ env.APK_VERSION }} (build ${{ env.APK_BUILD }}) | Run #${{ github.run_number }} | ✅ ${{ env.REPORT_PASSED }} Passed / ❌ ${{ env.REPORT_FAILED }} Failed / Total ${{ env.REPORT_TOTAL }}"
           to: ${{ secrets.MAIL_TO }}
           from: Fluent Regression CI <${{ secrets.MAIL_USERNAME }}>
           html_body: ${{ env.EMAIL_HTML }}
