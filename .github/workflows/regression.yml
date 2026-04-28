@@ -58,14 +58,16 @@ jobs:
 
       - name: Generate Allure report
         if: always()
-        run: mvn allure:report --no-transfer-progress
+        run: |
+          npm install -g allure-commandline --silent
+          allure generate target/allure-results --clean -o target/site/allure-report
 
       - name: Upload Allure report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: allure-report
-          path: target/site/allure-maven-plugin/
+          path: target/site/allure-report/
           retention-days: 14
 
       - name: Upload Appium log
