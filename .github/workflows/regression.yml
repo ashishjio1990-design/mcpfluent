@@ -92,9 +92,16 @@ jobs:
               gh.write(f'passed={passed}\nfailed={failed}\nerrors={errors}\nskipped={skipped}\ntotal={total}\n')
           EOF
 
-      - name: Zip Allure report
+      - name: Generate PDF report
         if: always()
-        run: zip -r allure-report.zip target/site/allure-report/
+        run: |
+          python3 scripts/generate_pdf_report.py
+          google-chrome --headless --no-sandbox --disable-gpu \
+            --print-to-pdf=$(pwd)/allure-report.pdf \
+            --no-pdf-header-footer \
+            --run-all-compositor-stages-before-draw \
+            --virtual-time-budget=3000 \
+            "file://$(pwd)/allure-summary.html"
 
       - name: Send email with Allure report
         if: always()
@@ -125,7 +132,7 @@ jobs:
 
             The full Allure HTML report (with pie chart) is attached.
             View run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          attachments: allure-report.zip
+          attachments: allure-report.pdf
 
       - name: Upload Appium log
         if: always()
