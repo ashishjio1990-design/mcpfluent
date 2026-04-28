@@ -99,7 +99,7 @@ public class HelloAppTest extends BaseTest {
     @Tag("regression")
     @Tag("smoke")
     @Story("Hello screen interaction")
-    @Description("Verify action bar shows correct version and tapping Hello World text works")
+    @Description("1Verify action bar shows correct version and tapping Hello World text works")
     @Severity(SeverityLevel.NORMAL)
     public void testHelloTextTapAndVersionCheck4() {
         assertTrue(pages.helloMainPage().isDisplayed(), "Hello World text should be visible on launch");
