@@ -11,10 +11,13 @@ import io.qameta.allure.Story;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @Feature("Sign In")
+@Execution(ExecutionMode.SAME_THREAD)
 public class SignInTest extends AndroidBaseTest {
 
     private PageManager pages;

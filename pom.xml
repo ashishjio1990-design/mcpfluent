@@ -22,6 +22,7 @@
         <jackson.version>2.18.0</jackson.version>
         <maven.surefire.version>3.5.1</maven.surefire.version>
         <allure.version>2.29.1</allure.version>
+        <parallel.count>2</parallel.count>
     </properties>
 
     <dependencyManagement>
@@ -130,11 +131,15 @@
                         <include>**/*Test.java</include>
                         <include>**/*Tests.java</include>
                     </includes>
+                    <!-- Single fork: JUnit 5 manages the thread pool internally -->
+                    <forkCount>1</forkCount>
+                    <reuseForks>true</reuseForks>
                     <systemPropertyVariables>
                         <platform>${platform}</platform>
                         <deviceName>${deviceName}</deviceName>
                         <appiumUrl>${appiumUrl}</appiumUrl>
                         <allure.results.directory>${project.build.directory}/allure-results</allure.results.directory>
+                        <junit.jupiter.execution.parallel.config.fixed.parallelism>${parallel.count}</junit.jupiter.execution.parallel.config.fixed.parallelism>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
