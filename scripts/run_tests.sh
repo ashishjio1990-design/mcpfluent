@@ -39,21 +39,7 @@ for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
   sleep 3
 done
 
-EVIDENCE_DIR="$GITHUB_WORKSPACE/evidence"
-mkdir -p "$EVIDENCE_DIR"
-
-# Android screenrecord has a 3-min hard limit — loop to cover up to 10 min of tests
-adb shell mkdir -p /sdcard/evidence
-echo "Starting screen recording loop (3-min chunks)..."
-(
-  i=1
-  while true; do
-    adb shell screenrecord --bit-rate=4000000 --time-limit=180 \
-      "/sdcard/evidence/recording_$(printf '%03d' $i).mp4" 2>/dev/null
-    i=$((i + 1))
-  done
-) &
-RECORD_PID=$!
+mkdir -p "$GITHUB_WORKSPACE/evidence"
 
 mvn test \
   -Dgroups="$TAG" \
@@ -63,16 +49,3 @@ mvn test \
   -Dplatform=android \
   $APP_ARG \
   --no-transfer-progress
-TEST_EXIT=$?
-
-echo "Stopping screen recording..."
-kill $RECORD_PID 2>/dev/null || true
-adb shell pkill -SIGINT screenrecord 2>/dev/null || true
-sleep 3  # Allow device to finalize the last MP4
-
-echo "Pulling recordings from device..."
-adb pull /sdcard/evidence/ "$EVIDENCE_DIR/" \
-  && echo "Recordings saved to $EVIDENCE_DIR/" \
-  || echo "Warning: could not pull recordings"
-
-exit $TEST_EXIT

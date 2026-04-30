@@ -1,9 +1,54 @@
 package com.fluent.utils;
 
+import io.appium.java_client.android.AndroidStartScreenRecordingOptions;
 import io.appium.java_client.android.options.UiAutomator2Options;
+import io.appium.java_client.screenrecording.CanRecordScreen;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInfo;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Duration;
+import java.util.Base64;
+
 public abstract class AndroidBaseTest extends BaseTest {
+
+    private String currentTestName;
+
+    @BeforeEach
+    public void startRecording(TestInfo testInfo) {
+        currentTestName = testInfo.getDisplayName().replaceAll("[^a-zA-Z0-9_-]", "_");
+        try {
+            ((CanRecordScreen) getDriver()).startRecordingScreen(
+                new AndroidStartScreenRecordingOptions()
+                    .withTimeLimit(Duration.ofMinutes(10))
+                    .withBitRate(4000000)
+            );
+            log.info("Recording started: {}", currentTestName);
+        } catch (Exception e) {
+            log.warn("Could not start recording: {}", e.getMessage());
+        }
+    }
+
+    @AfterEach
+    public void saveRecording() {
+        try {
+            String base64 = ((CanRecordScreen) getDriver()).stopRecordingScreen();
+            String workspace = System.getenv("GITHUB_WORKSPACE");
+            Path evidenceDir = workspace != null
+                ? Paths.get(workspace, "evidence")
+                : Paths.get("evidence");
+            Files.createDirectories(evidenceDir);
+            Path file = evidenceDir.resolve(currentTestName + ".mp4");
+            Files.write(file, Base64.getDecoder().decode(base64));
+            log.info("Recording saved: {}", file);
+        } catch (Exception e) {
+            log.warn("Could not save recording: {}", e.getMessage());
+        }
+    }
 
     @Override
     protected DesiredCapabilities buildCapabilities() {
