@@ -85,7 +85,7 @@ public class SignInTest extends AndroidBaseTest {
     }
 
     @Test
-    @Tag("regression")
+    @Tag("smoke")
     @Story("Existing user sign in")
     @Description("Regression: verify existing user sign in flow - scenario 2")
     @Severity(SeverityLevel.CRITICAL)
