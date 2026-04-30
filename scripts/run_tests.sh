@@ -42,10 +42,10 @@ done
 EVIDENCE_DIR="$GITHUB_WORKSPACE/evidence"
 mkdir -p "$EVIDENCE_DIR"
 
-VIDEO_FILE="$EVIDENCE_DIR/smoke-recording.mp4"
-echo "Starting screen recording → $VIDEO_FILE"
-adb exec-out screenrecord --bit-rate=2000000 --output-format=h264 /dev/stdout \
-  | ffmpeg -y -i - -c copy "$VIDEO_FILE" > "$EVIDENCE_DIR/ffmpeg.log" 2>&1 &
+# Record directly on device — avoids pipe/timing loss that causes slideshow effect
+adb shell mkdir -p /sdcard/evidence
+echo "Starting screen recording on device..."
+adb shell screenrecord --bit-rate=4000000 /sdcard/evidence/recording.mp4 &
 RECORD_PID=$!
 
 mvn test \
@@ -58,9 +58,14 @@ mvn test \
   --no-transfer-progress
 TEST_EXIT=$?
 
-echo "Stopping screen recording (PID $RECORD_PID)..."
+echo "Stopping screen recording..."
 kill $RECORD_PID 2>/dev/null || true
-wait $RECORD_PID 2>/dev/null || true
-echo "Recording saved: $VIDEO_FILE"
+adb shell pkill -SIGINT screenrecord 2>/dev/null || true
+sleep 3  # Allow device to finalize the MP4
+
+echo "Pulling recording from device..."
+adb pull /sdcard/evidence/recording.mp4 "$EVIDENCE_DIR/smoke-recording.mp4" \
+  && echo "Recording saved: $EVIDENCE_DIR/smoke-recording.mp4" \
+  || echo "Warning: could not pull recording"
 
 exit $TEST_EXIT
