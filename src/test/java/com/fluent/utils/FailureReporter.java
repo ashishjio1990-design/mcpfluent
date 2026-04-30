@@ -11,6 +11,21 @@ import java.nio.file.Paths;
 public class FailureReporter implements TestWatcher {
 
     @Override
+    public void testSuccessful(ExtensionContext context) {
+        // Delete recording for passed tests — only failures are worth keeping
+        String testName = context.getDisplayName().replaceAll("[^a-zA-Z0-9_-]", "_");
+        String workspace = System.getenv("GITHUB_WORKSPACE");
+        Path recording = workspace != null
+            ? Paths.get(workspace, "evidence", testName + ".mp4")
+            : Paths.get("evidence", testName + ".mp4");
+        try {
+            Files.deleteIfExists(recording);
+        } catch (IOException e) {
+            System.err.println("[FailureReporter] Could not delete recording: " + e.getMessage());
+        }
+    }
+
+    @Override
     public void testFailed(ExtensionContext context, Throwable cause) {
         String testName = context.getDisplayName().replaceAll("[^a-zA-Z0-9_-]", "_");
         String workspace = System.getenv("GITHUB_WORKSPACE");
