@@ -33,6 +33,9 @@ jobs:
       - name: Install Appium
         run: npm install -g appium && appium driver install uiautomator2
 
+      - name: Install ffmpeg
+        run: sudo apt-get install -y ffmpeg
+
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -111,4 +114,12 @@ jobs:
         with:
           name: surefire-reports
           path: target/surefire-reports/
+          retention-days: 14
+
+      - name: Upload evidence (screen recording)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence
+          path: evidence/
           retention-days: 14
