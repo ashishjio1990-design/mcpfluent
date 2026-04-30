@@ -42,10 +42,17 @@ done
 EVIDENCE_DIR="$GITHUB_WORKSPACE/evidence"
 mkdir -p "$EVIDENCE_DIR"
 
-# Record directly on device — avoids pipe/timing loss that causes slideshow effect
+# Android screenrecord has a 3-min hard limit — loop to cover up to 10 min of tests
 adb shell mkdir -p /sdcard/evidence
-echo "Starting screen recording on device..."
-adb shell screenrecord --bit-rate=4000000 /sdcard/evidence/recording.mp4 &
+echo "Starting screen recording loop (3-min chunks)..."
+(
+  i=1
+  while true; do
+    adb shell screenrecord --bit-rate=4000000 --time-limit=180 \
+      "/sdcard/evidence/recording_$(printf '%03d' $i).mp4" 2>/dev/null
+    i=$((i + 1))
+  done
+) &
 RECORD_PID=$!
 
 mvn test \
@@ -61,11 +68,11 @@ TEST_EXIT=$?
 echo "Stopping screen recording..."
 kill $RECORD_PID 2>/dev/null || true
 adb shell pkill -SIGINT screenrecord 2>/dev/null || true
-sleep 3  # Allow device to finalize the MP4
+sleep 3  # Allow device to finalize the last MP4
 
-echo "Pulling recording from device..."
-adb pull /sdcard/evidence/recording.mp4 "$EVIDENCE_DIR/smoke-recording.mp4" \
-  && echo "Recording saved: $EVIDENCE_DIR/smoke-recording.mp4" \
-  || echo "Warning: could not pull recording"
+echo "Pulling recordings from device..."
+adb pull /sdcard/evidence/ "$EVIDENCE_DIR/" \
+  && echo "Recordings saved to $EVIDENCE_DIR/" \
+  || echo "Warning: could not pull recordings"
 
 exit $TEST_EXIT
