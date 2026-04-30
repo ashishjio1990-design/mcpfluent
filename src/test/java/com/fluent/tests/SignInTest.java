@@ -112,4 +112,33 @@ public class SignInTest extends AndroidBaseTest {
         assertTrue(pages.fluentHomePage().isDisplayed(), "Home page should be displayed after sign-in");
 
     }
+
+    @Test
+    @Tag("smoke")
+    @Story("Existing user sign in")
+    @Description("Regression: verify existing user sign in flow - scenario 3")
+    @Severity(SeverityLevel.CRITICAL)
+    public void testExistingUserSignIn3() throws InterruptedException {
+        // Step 1: Welcome screen → tap Log in
+        assertTrue(pages.createAccountPage().isDisplayed(), "Welcome screen should be displayed");
+        pages.createAccountPage().tapLogIn();
+
+        // Step 2: Sign In screen
+        assertTrue(pages.loginPage().isDisplayed(), "Sign In screen should be displayed");
+        assertFalse(pages.loginPage().isContinueButtonEnabled(),
+                "Continue button should be disabled before entering phone number");
+
+        pages.loginPage().enterPhoneNumber(TestData.SIGN_IN_MOBILE);
+
+        assertTrue(pages.loginPage().isContinueButtonEnabled(),
+                "Continue button should be enabled after entering phone number");
+        pages.loginPage().tapContinue();
+
+        // Step 4: Enter PIN (existing user)
+        assertTrue(pages.enterPinPage().isDisplayed(), "Enter PIN screen should be displayed");
+        pages.enterPinPage().enterPin("000001");
+        // Step 5: Home page
+        assertTrue(pages.fluentHomePage().isDisplayed(), "Home page should be displayed after sign-in");
+
+    }
 }
