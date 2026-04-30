@@ -39,6 +39,15 @@ for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
   sleep 3
 done
 
+EVIDENCE_DIR="$GITHUB_WORKSPACE/evidence"
+mkdir -p "$EVIDENCE_DIR"
+
+VIDEO_FILE="$EVIDENCE_DIR/smoke-recording.mp4"
+echo "Starting screen recording → $VIDEO_FILE"
+adb exec-out screenrecord --bit-rate=2000000 --output-format=h264 /dev/stdout \
+  | ffmpeg -y -i - -c copy "$VIDEO_FILE" > "$EVIDENCE_DIR/ffmpeg.log" 2>&1 &
+RECORD_PID=$!
+
 mvn test \
   -Dgroups="$TAG" \
   $CLASSES_ARG \
@@ -47,3 +56,11 @@ mvn test \
   -Dplatform=android \
   $APP_ARG \
   --no-transfer-progress
+TEST_EXIT=$?
+
+echo "Stopping screen recording (PID $RECORD_PID)..."
+kill $RECORD_PID 2>/dev/null || true
+wait $RECORD_PID 2>/dev/null || true
+echo "Recording saved: $VIDEO_FILE"
+
+exit $TEST_EXIT
