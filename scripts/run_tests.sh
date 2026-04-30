@@ -7,8 +7,6 @@ if [ -n "${TEST_CLASSES:-}" ]; then
   CLASSES_ARG="-Dtest=$TEST_CLASSES"
 fi
 
-# If a Firebase APK was downloaded, use it for both Fluent Health and Hello app tests.
-# Otherwise fall back to the checked-in APK paths.
 if [ -n "${FIREBASE_APK:-}" ]; then
   APP_ARG="-Dapp=$FIREBASE_APK -DhelloApp=$FIREBASE_APK"
 else
@@ -41,11 +39,36 @@ done
 
 mkdir -p "$GITHUB_WORKSPACE/evidence"
 
-mvn test \
-  -Dgroups="$TAG" \
-  $CLASSES_ARG \
-  -DdeviceName=emulator-5554 \
-  -DappiumUrl=http://127.0.0.1:4723 \
-  -Dplatform=android \
-  $APP_ARG \
-  --no-transfer-progress
+MVN_BASE="-DdeviceName=emulator-5554 -DappiumUrl=http://127.0.0.1:4723 -Dplatform=android $APP_ARG --no-transfer-progress"
+
+# ── Phase 1: run all tests ────────────────────────────────────────────────────
+echo "=========================================="
+echo "  Phase 1: running full test suite"
+echo "=========================================="
+set +e
+mvn test -Dgroups="$TAG" $CLASSES_ARG $MVN_BASE
+PHASE1_EXIT=$?
+set -e
+
+# ── Phase 2: rerun failed tests once ─────────────────────────────────────────
+FAILED=$(python3 scripts/get_failed_tests.py 2>/dev/null || echo "")
+
+if [ -n "$FAILED" ]; then
+  echo "=========================================="
+  echo "  Phase 2: rerunning failed classes"
+  echo "  $FAILED"
+  echo "=========================================="
+
+  # Remove phase-1 Allure results for these classes so they are not double-counted
+  python3 scripts/clean_allure_retries.py "$FAILED"
+
+  set +e
+  mvn test -Dtest="$FAILED" $MVN_BASE
+  TEST_EXIT=$?
+  set -e
+else
+  echo "No failures in phase 1 — skipping rerun."
+  TEST_EXIT=$PHASE1_EXIT
+fi
+
+exit $TEST_EXIT
