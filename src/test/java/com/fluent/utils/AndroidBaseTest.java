@@ -6,6 +6,7 @@ import io.appium.java_client.screenrecording.CanRecordScreen;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.nio.file.Files;
@@ -14,6 +15,7 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Base64;
 
+@ExtendWith(FailureReporter.class)
 public abstract class AndroidBaseTest extends BaseTest {
 
     private String currentTestName;

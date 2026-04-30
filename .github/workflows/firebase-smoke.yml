@@ -128,3 +128,13 @@ jobs:
           name: evidence-firebase-smoke
           path: evidence/
           retention-days: 14
+
+      - name: Send per-test failure emails
+        if: always()
+        env:
+          MAIL_SERVER: ${{ secrets.MAIL_SERVER }}
+          MAIL_PORT: ${{ secrets.MAIL_PORT }}
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+        run: python3 scripts/send_failure_emails.py
