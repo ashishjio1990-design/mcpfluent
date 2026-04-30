@@ -12,16 +12,15 @@ public class FailureReporter implements TestWatcher {
 
     @Override
     public void testSuccessful(ExtensionContext context) {
-        // Delete recording for passed tests — only failures are worth keeping
+        // Test passed (including on retry) — delete recording and any stale failure JSON
         String testName = context.getDisplayName().replaceAll("[^a-zA-Z0-9_-]", "_");
         String workspace = System.getenv("GITHUB_WORKSPACE");
-        Path recording = workspace != null
-            ? Paths.get(workspace, "evidence", testName + ".mp4")
-            : Paths.get("evidence", testName + ".mp4");
+        Path base = workspace != null ? Paths.get(workspace) : Paths.get(".");
         try {
-            Files.deleteIfExists(recording);
+            Files.deleteIfExists(base.resolve("evidence").resolve(testName + ".mp4"));
+            Files.deleteIfExists(base.resolve("evidence").resolve("failures").resolve(testName + ".json"));
         } catch (IOException e) {
-            System.err.println("[FailureReporter] Could not delete recording: " + e.getMessage());
+            System.err.println("[FailureReporter] Could not clean up after passed test: " + e.getMessage());
         }
     }
 
