@@ -22,6 +22,7 @@
         <jackson.version>2.18.0</jackson.version>
         <maven.surefire.version>3.5.1</maven.surefire.version>
         <allure.version>2.29.1</allure.version>
+        <aspectj.version>1.9.22</aspectj.version>
         <parallel.count>2</parallel.count>
     </properties>
 
@@ -118,6 +119,14 @@
             <version>${allure.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- AspectJ weaver required for Allure annotations (@Description, @Step, etc.) -->
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>${aspectj.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -127,6 +136,9 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven.surefire.version}</version>
                 <configuration>
+                    <argLine>
+                        -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
+                    </argLine>
                     <includes>
                         <include>**/*Test.java</include>
                         <include>**/*Tests.java</include>

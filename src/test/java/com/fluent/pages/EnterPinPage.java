@@ -14,6 +14,9 @@ public class EnterPinPage extends BasePage {
     @AndroidFindBy(id = "com.fluenthealth.app:id/createPinBackIv")
     private WebElement backButton;
 
+    @AndroidFindBy(id = "com.fluenthealth.app:id/errorTV")
+    private WebElement errorMessage;
+
     public boolean isDisplayed() {
         return isVisible(pinInput);
     }
@@ -31,6 +34,15 @@ public class EnterPinPage extends BasePage {
     public void tapContinue() {
         log.info("Tapping Continue button");
         tap(continueButton);
+    }
+
+    public boolean isErrorDisplayed() {
+        return isVisible(errorMessage);
+    }
+
+    public String getErrorMessage() {
+        log.info("Getting error message text");
+        return getText(errorMessage);
     }
 
     public void tapBack() {
