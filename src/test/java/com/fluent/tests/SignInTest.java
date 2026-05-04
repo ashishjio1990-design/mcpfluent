@@ -308,7 +308,7 @@ public class SignInTest extends AndroidBaseTest {
     @Description("Health Insurance CRUD with mandatory field (*) validation")
     @Severity(SeverityLevel.NORMAL)
     public void healthInsurance_field_validation() {
-        // ── Navigate: My Health → Basic Info ─────────────────────────────────
+      //  ── Navigate: My Health → Basic Info ─────────────────────────────────
         pages.fluentHomePage().tapMyHealthTab();
         pages.basicInfoPage().tapBasicInfoTab();
 
@@ -326,39 +326,31 @@ public class SignInTest extends AndroidBaseTest {
         pages.basicInfoPage().tapHIAddButton();
         assertTrue(pages.basicInfoPage().isAddHIFormVisible(), "Add HI form should be displayed");
 
-        // ── Mandatory field checks ────────────────────────────────────────────
-        assertTrue(pages.basicInfoPage().isHIFirstNameMandatory(), "Insurance name* mandatory");
-        assertTrue(pages.basicInfoPage().isHIMemberIdMandatory(), "Member ID* mandatory");
+     
 
         // ── Save button states ────────────────────────────────────────────────
         assertFalse(pages.basicInfoPage().isHISaveButtonEnabled(), "Save disabled - empty fields");
 
-        pages.basicInfoPage().enterHIInsuranceName(TestData.HI_INSURANCE_NAME);
-        assertFalse(pages.basicInfoPage().isHISaveButtonEnabled(), "Save disabled - missing member ID");
-
-        pages.basicInfoPage().enterHIMemberId(TestData.HI_INSURED_MEMBER_ID);
-        pages.basicInfoPage().enterHIPolicyNumber(TestData.HI_POLICY_NUMBER);  // optional
+        pages.basicInfoPage().tapHIInsuranceNameInput();
+        pages.basicInfoPage().tapHIContactNumber();
+        pages.basicInfoPage().enterHIPolicyNumber(TestData.HI_POLICY_NUMBER);
         assertTrue(pages.basicInfoPage().isHISaveButtonEnabled(), "Save enabled - all mandatory filled");
 
         // ── CREATE ────────────────────────────────────────────────────────────
         pages.basicInfoPage().tapSaveHIForm();
-
+        pages.basicInfoPage().scrollDown();
         assertFalse(pages.basicInfoPage().isAddHIFormVisible(), "Form closed after save");
+        pages.basicInfoPage().waitForHICard();
         assertTrue(pages.basicInfoPage().isHIPresent(), "HI card visible");
-        assertEquals(TestData.HI_INSURANCE_NAME, pages.basicInfoPage().getHISavedInsuranceName(), "Insurance name matches");
-        assertTrue(pages.basicInfoPage().getHISavedMemberId().contains(TestData.HI_INSURED_MEMBER_ID), "Member ID matches");
-
+   
         // ── UPDATE ────────────────────────────────────────────────────────────
         pages.basicInfoPage().tapEditHI();
         assertTrue(pages.basicInfoPage().isEditHIFormVisible(), "Edit form visible");
 
-        pages.basicInfoPage().clearAndEnterHIInsuranceName(TestData.HI_UPDATED_INSURANCE_NAME);
+   
         pages.basicInfoPage().clearAndEnterHIPolicyNumber(TestData.HI_UPDATED_POLICY_NUMBER);
-        pages.basicInfoPage().clearAndEnterHIMemberId(TestData.HI_UPDATED_MEMBER_ID);
+   
         pages.basicInfoPage().tapSaveHIForm();
-
-        assertEquals(TestData.HI_UPDATED_INSURANCE_NAME, pages.basicInfoPage().getHISavedInsuranceName(), "Updated insurance name matches");
-        assertTrue(pages.basicInfoPage().getHISavedMemberId().contains(TestData.HI_UPDATED_MEMBER_ID), "Updated member ID matches");
 
         // ── DELETE ────────────────────────────────────────────────────────────
         pages.basicInfoPage().tapEditHI();

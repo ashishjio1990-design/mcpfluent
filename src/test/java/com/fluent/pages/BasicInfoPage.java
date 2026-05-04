@@ -79,14 +79,17 @@ public class BasicInfoPage extends BasePage {
     @AndroidFindBy(xpath = "//android.widget.TextView[@text='Edit Health Insurance']")
     private WebElement editHIFormTitle;
 
-    @AndroidFindBy(xpath = "//android.widget.EditText[@hint='Insurance name*'][ancestor::android.widget.ScrollView[contains(@resource-id, 'insurance') or contains(@resource-id, 'hi')]]")
+    @AndroidFindBy(xpath = "//android.widget.TextView[@resource-id=\"com.fluenthealth.app:id/selectionValueTv\"]")
     private WebElement hiInsuranceNameInput;
 
-    @AndroidFindBy(xpath = "//android.widget.EditText[@hint='Policy number'][ancestor::android.widget.ScrollView[contains(@resource-id, 'insurance') or contains(@resource-id, 'hi')]]")
+    @AndroidFindBy(xpath = "//android.widget.EditText[@hint=\"Policy Number*\"]")
     private WebElement hiPolicyNumberInput;
 
-    @AndroidFindBy(xpath = "//android.widget.EditText[@hint='Insured member ID*'][ancestor::android.widget.ScrollView[contains(@resource-id, 'insurance') or contains(@resource-id, 'hi')]]")
+    @AndroidFindBy(xpath = "//android.widget.EditText[@hint='Insured member ID*']")
     private WebElement hiMemberIdInput;
+
+    @AndroidFindBy(xpath = "//android.widget.EditText[@text='Contact number']")
+    private WebElement hiContactNumberInput;
 
     @AndroidFindBy(id = "com.fluenthealth.app:id/button")
     private WebElement hiSaveButton;
@@ -422,6 +425,24 @@ public class BasicInfoPage extends BasePage {
         return this;
     }
 
+    public BasicInfoPage tapHIInsuranceNameInput() {
+        log.info("Tapping HI insurance name input");
+        tap(hiInsuranceNameInput);
+        return this;
+    }
+
+    public BasicInfoPage tapHIContactNumber() {
+        log.info("Tapping HI contact number input at (540, 1477)");
+        tapAt(540, 1477);
+        return this;
+    }
+
+    public BasicInfoPage scrollDown() {
+        log.info("Scrolling down");
+        doScrollDown();
+        return this;
+    }
+
     public BasicInfoPage clearAndEnterECFirstName(String name) {
         log.info("Updating EC first name to: {}", name);
         clearAndType(ecFirstNameInput, name);
@@ -574,6 +595,12 @@ public class BasicInfoPage extends BasePage {
 
     public boolean isHIPresent() {
         return isVisible(hiSavedInsuranceName);
+    }
+
+    public BasicInfoPage waitForHICard() {
+        log.info("Waiting for HI card to appear");
+        waitForVisible(hiSavedInsuranceName);
+        return this;
     }
 
     public String getAMDSavedName() {

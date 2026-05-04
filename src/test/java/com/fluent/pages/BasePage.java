@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.util.Map;
 
 public abstract class BasePage {
 
@@ -47,6 +48,16 @@ public abstract class BasePage {
 
     protected void tap(WebElement element) {
         element.click();
+    }
+
+    protected void tapAt(int x, int y) {
+        driver.executeScript("mobile: clickGesture", Map.of("x", x, "y", y));
+    }
+
+    protected void doScrollDown() {
+        driver.executeScript("mobile: scrollGesture", Map.of(
+                "left", 0, "top", 400, "width", 1080, "height", 1600,
+                "direction", "down", "percent", 0.75));
     }
 
     protected void clearAndType(WebElement element, String text) {
