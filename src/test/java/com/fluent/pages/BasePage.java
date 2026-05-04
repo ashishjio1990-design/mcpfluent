@@ -1,6 +1,7 @@
 package com.fluent.pages;
 
 import com.fluent.utils.DriverManager;
+import com.fluent.utils.WaitUtils;
 import io.appium.java_client.AppiumBy;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.pagefactory.AppiumFieldDecorator;
@@ -15,10 +16,21 @@ public abstract class BasePage {
 
     protected final Logger log = LoggerFactory.getLogger(getClass());
     protected final AppiumDriver driver;
+    protected final WaitUtils wait;
 
     protected BasePage() {
         this.driver = DriverManager.getDriver();
+        this.wait = new WaitUtils(driver);
         PageFactory.initElements(new AppiumFieldDecorator(driver, Duration.ofSeconds(10)), this);
+    }
+
+    protected boolean waitForVisible(WebElement element) {
+        try {
+            wait.waitForVisible(element);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     protected String getText(WebElement element) {
@@ -40,6 +52,14 @@ public abstract class BasePage {
     protected void clearAndType(WebElement element, String text) {
         element.clear();
         element.sendKeys(text);
+    }
+
+    protected void hideKeyboard() {
+        try {
+            driver.executeScript("mobile: hideKeyboard");
+        } catch (Exception e) {
+            log.warn("Could not hide keyboard: {}", e.getMessage());
+        }
     }
 
     protected void scrollToText(String text) {
