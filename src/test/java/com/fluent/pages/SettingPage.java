@@ -78,6 +78,9 @@ public class SettingPage extends BasePage {
     @AndroidFindBy(id = "com.fluenthealth.app:id/text_view_profile_settings_logout")
     private WebElement logOutButton;
 
+    @AndroidFindBy(id = "com.fluenthealth.app:id/pinBackIv")
+    private WebElement pinBackButton;
+
     @AndroidFindBy(id = "com.fluenthealth.app:id/text_view_profile_settings_delete_data_description")
     private WebElement deleteDataDescription;
 
@@ -214,8 +217,20 @@ public class SettingPage extends BasePage {
     }
 
     public void tapLogOut() {
-        log.info("Tapping Log Out");
+        log.info("Scrolling to and tapping Log Out");
+        scrollToElementById("com.fluenthealth.app:id/text_view_profile_settings_logout");
+        wait.waitForClickable(logOutButton);
         tap(logOutButton);
+    }
+
+    public boolean isPinBackButtonDisplayed() {
+        return isVisible(pinBackButton);
+    }
+
+    public void tapPinBackButton() {
+        log.info("Tapping PIN back button (pinBackIv)");
+        wait.waitForClickable(pinBackButton);
+        tap(pinBackButton);
     }
 
     public void tapDeleteAccount() {

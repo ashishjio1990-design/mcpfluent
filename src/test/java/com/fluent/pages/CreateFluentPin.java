@@ -30,11 +30,7 @@ public class CreateFluentPin extends BasePage {
     }
 
     public boolean isContinueButtonEnabled() {
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        waitForVisible(continueButton);
         return continueButton.isEnabled();
     }
 
@@ -51,11 +47,7 @@ public class CreateFluentPin extends BasePage {
     public CreateFluentPin enterConfirmPin(String pin) {
         log.info("Entering Confirm PIN");
         scrollToElementById("com.fluenthealth.app:id/pinConfirmCode");
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        waitForVisible(pinConfirmCodeInput);
         clearAndType(pinConfirmCodeInput, pin);
         return this;
     }

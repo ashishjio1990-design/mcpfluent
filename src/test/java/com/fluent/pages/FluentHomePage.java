@@ -9,6 +9,9 @@ public class FluentHomePage extends BasePage {
     @AndroidFindBy(xpath = "//androidx.compose.ui.platform.ComposeView/android.view.View/android.view.View[1]")
     private WebElement setting;
 
+    @AndroidFindBy(xpath = "//android.widget.FrameLayout[@content-desc=\"Home\"]")
+    private WebElement homeNav;
+
     @AndroidFindBy(xpath = "//androidx.compose.ui.platform.ComposeView/android.view.View/android.view.View[2]")
     private WebElement notificationicon;
 
@@ -103,6 +106,12 @@ public class FluentHomePage extends BasePage {
     public FluentHomePage tapHomeTab() {
         log.info("Tapping Home tab");
         tap(homeTab);
+        return this;
+    }
+
+    public FluentHomePage tapHome() {
+        log.info("Tapping Home nav (content-desc)");
+        tap(homeNav);
         return this;
     }
 
