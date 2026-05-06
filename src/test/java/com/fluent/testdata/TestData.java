@@ -43,6 +43,23 @@ public class TestData {
     public static final String SP_UPDATED_NOTES        = "Recovery completed. Patient cleared for normal activity.";
     public static final String SP_UPDATED_SURGERY_NAME = "Tonsillectomy";
 
+    // ── Vitals ──
+    public static final String VIT_SYSTOLIC          = "120";
+    public static final String VIT_DIASTOLIC         = "80";
+    public static final String VIT_UPDATED_SYSTOLIC  = "115";
+    public static final String VIT_UPDATED_DIASTOLIC = "75";
+
+    // ── Vaccines ──
+    public static final String VAX_VACCINE_NAME        = "Flu Vaccine";
+    public static final String VAX_DOSE                = "Dose 1";
+    public static final String VAX_NOTES               = "Annual flu vaccine administered. No adverse reactions.";
+    public static final String VAX_UPDATED_NOTES       = "Follow-up confirmed. Immunity response normal.";
+
+    // ── Key Health Tests ──
+    public static final String KHT_TEST_NAME          = "Blood Sugar Test";
+    public static final String KHT_NOTES              = "Fasting blood sugar levels checked. Results within normal range.";
+    public static final String KHT_UPDATED_NOTES      = "Follow-up test completed. All values normalized.";
+
     public static final String EC_FIRST_NAME          = "John";
     public static final String EC_LAST_NAME           = "Doe";
     public static final String EC_CONTACT_NUMBER      = "9876543210";

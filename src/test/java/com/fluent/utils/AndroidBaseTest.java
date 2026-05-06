@@ -1,5 +1,6 @@
 package com.fluent.utils;
 
+import com.fluent.annotations.SkipAppReset;
 import com.fluent.pages.PageManager;
 import com.fluent.testdata.TestData;
 import io.appium.java_client.AppiumBy;
@@ -35,11 +36,11 @@ public abstract class AndroidBaseTest extends BaseTest {
 
     protected void signIn(PageManager pages) {
         // Layer 3: if a previous test left the app signed-in, force a clean reset
-        if (pages.fluentHomePage().isDisplayed()) {
-            log.warn("Home screen visible at start of signIn() — previous reset failed; forcing restart");
-            clearAppDataAndRestart();
-            dismissUpdatePopupIfPresent();
-        }
+        // if (pages.fluentHomePage().isDisplayed()) {
+        //     log.warn("Home screen visible at start of signIn() — previous reset failed; forcing restart");
+        //     clearAppDataAndRestart();
+        //     dismissUpdatePopupIfPresent();
+        // }
         if (pages.settingPage().isPinBackButtonDisplayed()) {
             log.info("PIN back button detected before welcome screen — tapping to dismiss");
             pages.settingPage().tapPinBackButton();
@@ -67,6 +68,50 @@ public abstract class AndroidBaseTest extends BaseTest {
         pages.fluentHomePage().tapFabAndSelectAddHealthInfo();
         pages.surgeriesAndProceduresPage().scrollToSurgeriesSection();
         pages.surgeriesAndProceduresPage().tapSurgeriesAndProcedures();
+    }
+
+    protected void navigateToVitals(PageManager pages) {
+        pages.fluentHomePage().tapFabAndSelectAddHealthInfo();
+        pages.vitalsPage().scrollToVitalsSection();
+        pages.vitalsPage().tapVitals();
+    }
+
+    protected void fillBloodPressureMandatoryFields(PageManager pages, String systolic, String diastolic) {
+        pages.vitalsPage().enterSystolic(systolic);
+        pages.vitalsPage().enterDiastolic(diastolic);
+        pages.vitalsPage().tapDateField();
+        pages.vitalsPage().confirmDatePicker();
+        pages.vitalsPage().tapTimeField();
+        pages.vitalsPage().confirmTimePicker();
+    }
+
+    protected void navigateToVaccines(PageManager pages) {
+        pages.fluentHomePage().tapFabAndSelectAddHealthInfo();
+        pages.vaccinesPage().scrollToVaccinesSection();
+        pages.vaccinesPage().tapVaccines();
+    }
+
+    protected void fillVaccineMandatoryFields(PageManager pages, String vaccineName, String dose) {
+        pages.vaccinesPage().tapVaccineSearchField();
+        pages.vaccinesPage().selectVaccineFromCommonList(vaccineName);
+        pages.vaccinesPage().tapDoseSelectorField();
+        pages.vaccinesPage().tapDateField();
+        try { Thread.sleep(3000); } catch (InterruptedException ignored) {}
+        pages.vaccinesPage().tapDateField();
+        pages.vaccinesPage().confirmDatePicker();
+    }
+
+    protected void navigateToKeyHealthTests(PageManager pages) {
+        pages.fluentHomePage().tapFabAndSelectAddHealthInfo();
+        pages.keyHealthTestsPage().scrollToKeyHealthTestsSection();
+        pages.keyHealthTestsPage().tapKeyHealthTests();
+    }
+
+    protected void fillKeyHealthTestMandatoryFields(PageManager pages, String testName) {
+        pages.keyHealthTestsPage().tapTestSearchField();
+        pages.keyHealthTestsPage().selectTestFromCommonList(testName);
+        pages.keyHealthTestsPage().tapDateField();
+        pages.keyHealthTestsPage().confirmDatePicker();
     }
 
     protected void fillSurgeryMandatoryFields(PageManager pages, String surgeryName, String status) {
@@ -129,8 +174,15 @@ public abstract class AndroidBaseTest extends BaseTest {
 
     @BeforeEach
     public void startRecording(TestInfo testInfo) {
-        clearAppDataAndRestart();
-        dismissUpdatePopupIfPresent();
+        boolean skip = testInfo.getTestMethod()
+                .map(m -> m.isAnnotationPresent(SkipAppReset.class))
+                .orElse(false);
+        if (!skip) {
+            clearAppDataAndRestart();
+            dismissUpdatePopupIfPresent();
+        } else {
+            log.info("@SkipAppReset — keeping existing app state for {}", testInfo.getDisplayName());
+        }
         currentTestName = testInfo.getDisplayName().replaceAll("[^a-zA-Z0-9_-]", "_");
         try {
             ((CanRecordScreen) getDriver()).startRecordingScreen(

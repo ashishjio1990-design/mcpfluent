@@ -16,6 +16,9 @@ public class PageManager {
     private EnterPinPage enterPinPage;
     private BasicInfoPage basicInfoPage;
     private SurgeriesAndProceduresPage surgeriesAndProceduresPage;
+    private KeyHealthTestsPage keyHealthTestsPage;
+    private VaccinesPage vaccinesPage;
+    private VitalsPage vitalsPage;
 
     public PageManager() {
         createAccountPage = new CreateAccountPage();
@@ -32,6 +35,9 @@ public class PageManager {
         enterPinPage = new EnterPinPage();
         basicInfoPage = new BasicInfoPage();
         surgeriesAndProceduresPage = new SurgeriesAndProceduresPage();
+        keyHealthTestsPage = new KeyHealthTestsPage();
+        vaccinesPage = new VaccinesPage();
+        vitalsPage = new VitalsPage();
     }
 
     public CreateAccountPage createAccountPage() {
@@ -88,5 +94,17 @@ public class PageManager {
 
     public SurgeriesAndProceduresPage surgeriesAndProceduresPage() {
         return surgeriesAndProceduresPage;
+    }
+
+    public KeyHealthTestsPage keyHealthTestsPage() {
+        return keyHealthTestsPage;
+    }
+
+    public VaccinesPage vaccinesPage() {
+        return vaccinesPage;
+    }
+
+    public VitalsPage vitalsPage() {
+        return vitalsPage;
     }
 }
