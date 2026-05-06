@@ -1,6 +1,7 @@
 package com.fluent.tests;
 
 import com.fluent.annotations.RetryOnFailure;
+import com.fluent.annotations.SkipAppReset;
 import com.fluent.pages.PageManager;
 import com.fluent.testdata.TestData;
 import com.fluent.utils.AndroidBaseTest;
@@ -71,6 +72,7 @@ public class SurgeriesAndProceduresTest extends AndroidBaseTest {
 
     @Test
     @Order(2)
+    @SkipAppReset
     @RetryOnFailure
     @Tag("regression")
     @Story("Surgeries and/or Procedures – Edit")
@@ -100,6 +102,7 @@ public class SurgeriesAndProceduresTest extends AndroidBaseTest {
 
     @Test
     @Order(3)
+    @SkipAppReset
     @RetryOnFailure
     @Tag("regression")
     @Story("Surgeries and/or Procedures – Delete")

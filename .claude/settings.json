@@ -14,7 +14,30 @@
       "Read(//c/Users/ashish.taralkar/Downloads/**)",
       "Bash(adb -s emulator-5554 install -r \"c:/Users/ashish.taralkar/Downloads/mcp fluent/apps/fluenthealth.apk\")",
       "Bash(adb devices *)",
-      "Bash(adb -s emulator-5554 shell pm list packages)"
+      "Bash(adb -s emulator-5554 shell pm list packages)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(adb -s f879acb2 shell cmd package resolve-activity --brief com.example.hello)",
+      "Bash(adb -s 419652a41022 shell dumpsys package com.fluenthealth.app)",
+      "Bash(adb -s 419652a41022 shell dumpsys activity activities)",
+      "Bash(adb -s 419652a41022 shell pm path com.fluenthealth.app)",
+      "PowerShell(& \"$env:LOCALAPPDATA\\\\Android\\\\Sdk\\\\build-tools\\\\$\\(ls $env:LOCALAPPDATA\\\\Android\\\\Sdk\\\\build-tools | Sort-Object Name -Descending | Select-Object -First 1 -ExpandProperty Name\\)\\\\aapt.exe\" dump badging \"C:\\\\Users\\\\ashish.taralkar\\\\Downloads\\\\base_temp.apk\" | Select-String \"launchable-activity\")",
+      "mcp__appium__appium_screenshot",
+      "Bash(python -c ' *)",
+      "Bash(Copy-Item -Path \"C:\\\\Users\\\\ASHISH~1.TAR\\\\AppData\\\\Local\\\\Temp\\\\screenshot_1777869809334.png\" -Destination \"C:\\\\Users\\\\ashish.taralkar\\\\Downloads\\\\mcp fluent\\\\screen_current.png\" -Force)",
+      "Bash(Copy-Item -Path \"C:\\\\Users\\\\ASHISH~1.TAR\\\\AppData\\\\Local\\\\Temp\\\\screenshot_1777869883777.png\" -Destination \"C:\\\\Users\\\\ashish.taralkar\\\\Downloads\\\\mcp fluent\\\\screen_current.png\" -Force)",
+      "mcp__appium__appium_gesture",
+      "mcp__appium__appium_set_value",
+      "Bash(Copy-Item -Path \"C:\\\\Users\\\\ASHISH~1.TAR\\\\AppData\\\\Local\\\\Temp\\\\screenshot_1777870444562.png\" -Destination \"C:\\\\Users\\\\ashish.taralkar\\\\Downloads\\\\mcp fluent\\\\screen_current.png\" -Force)",
+      "Bash(grep -E \"\\\\.java$\")",
+      "mcp__appium__select_device",
+      "Bash(Remove-Item \"c:\\\\Users\\\\ashish.taralkar\\\\Downloads\\\\mcp fluent\\\\src\\\\test\\\\java\\\\com\\\\fluent\\\\tests\\\\RequiredFieldValidationTest.java\")",
+      "Bash(appium --port 4723 --log-level error)",
+      "Bash(curl -s http://127.0.0.1:4723/status)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\ASHISH~1.TAR\\AppData\\Local\\Temp"
     ]
   }
 }
