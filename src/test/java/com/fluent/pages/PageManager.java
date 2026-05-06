@@ -15,6 +15,7 @@ public class PageManager {
     private SettingPage settingPage;
     private EnterPinPage enterPinPage;
     private BasicInfoPage basicInfoPage;
+    private SurgeriesAndProceduresPage surgeriesAndProceduresPage;
 
     public PageManager() {
         createAccountPage = new CreateAccountPage();
@@ -30,6 +31,7 @@ public class PageManager {
         settingPage = new SettingPage();
         enterPinPage = new EnterPinPage();
         basicInfoPage = new BasicInfoPage();
+        surgeriesAndProceduresPage = new SurgeriesAndProceduresPage();
     }
 
     public CreateAccountPage createAccountPage() {
@@ -82,5 +84,9 @@ public class PageManager {
 
     public BasicInfoPage basicInfoPage() {
         return basicInfoPage;
+    }
+
+    public SurgeriesAndProceduresPage surgeriesAndProceduresPage() {
+        return surgeriesAndProceduresPage;
     }
 }

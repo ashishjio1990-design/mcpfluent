@@ -63,6 +63,21 @@ public abstract class AndroidBaseTest extends BaseTest {
         assertTrue(pages.fluentHomePage().isDisplayed(), "Home page should be displayed after sign-in");
     }
 
+    protected void navigateToSurgeries(PageManager pages) {
+        pages.fluentHomePage().tapFabAndSelectAddHealthInfo();
+        pages.surgeriesAndProceduresPage().scrollToSurgeriesSection();
+        pages.surgeriesAndProceduresPage().tapSurgeriesAndProcedures();
+    }
+
+    protected void fillSurgeryMandatoryFields(PageManager pages, String surgeryName, String status) {
+        pages.surgeriesAndProceduresPage().tapSurgerySearchField();
+        pages.surgeriesAndProceduresPage().selectSurgeryFromCommonList(surgeryName);
+        pages.surgeriesAndProceduresPage().tapStatusField();
+        pages.surgeriesAndProceduresPage().tapDateField();
+        pages.surgeriesAndProceduresPage().tapDateField();
+        pages.surgeriesAndProceduresPage().confirmDatePicker();
+    }
+
     protected void signOut(PageManager pages) {
         pages.fluentHomePage().tapHome();
         pages.fluentHomePage().tapHomeSection1();

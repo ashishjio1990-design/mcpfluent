@@ -141,4 +141,11 @@ public class FluentHomePage extends BasePage {
         tap(fabContainer);
         return this;
     }
+
+    public void tapFabAndSelectAddHealthInfo() {
+        log.info("Tapping FAB and selecting Add health info");
+        tap(fabMenu);
+        driver.findElement(io.appium.java_client.AppiumBy.androidUIAutomator(
+                "new UiSelector().text(\"Add health info\")")).click();
+    }
 }

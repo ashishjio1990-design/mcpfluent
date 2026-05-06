@@ -35,6 +35,14 @@ public class TestData {
     public static final String HI_UPDATED_POLICY_NUMBER  = "POL87654321";
     public static final String HI_UPDATED_MEMBER_ID     = "MEM210987";
 
+    // ── Surgeries and/or Procedures ──
+    public static final String SP_SURGERY_NAME         = "Appendectomy";
+    public static final String SP_STATUS               = "Completed";
+    public static final String SP_UPDATED_STATUS       = "In-Progress";
+    public static final String SP_NOTES                = "Post-surgery recovery going well. No complications observed.";
+    public static final String SP_UPDATED_NOTES        = "Recovery completed. Patient cleared for normal activity.";
+    public static final String SP_UPDATED_SURGERY_NAME = "Tonsillectomy";
+
     public static final String EC_FIRST_NAME          = "John";
     public static final String EC_LAST_NAME           = "Doe";
     public static final String EC_CONTACT_NUMBER      = "9876543210";
