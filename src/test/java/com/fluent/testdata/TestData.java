@@ -43,11 +43,27 @@ public class TestData {
     public static final String SP_UPDATED_NOTES        = "Recovery completed. Patient cleared for normal activity.";
     public static final String SP_UPDATED_SURGERY_NAME = "Tonsillectomy";
 
-    // ── Vitals ──
+    // ── Vitals – Blood Pressure ──
     public static final String VIT_SYSTOLIC          = "120";
     public static final String VIT_DIASTOLIC         = "80";
     public static final String VIT_UPDATED_SYSTOLIC  = "115";
     public static final String VIT_UPDATED_DIASTOLIC = "75";
+
+    // ── Vitals – Body Temperature ──
+    public static final String VIT_TEMPERATURE         = "37.0";
+    public static final String VIT_UPDATED_TEMPERATURE = "36.5";
+
+    // ── Vitals – Oxygen Saturation Level ──
+    public static final String VIT_OXYGEN_LEVEL         = "98";
+    public static final String VIT_UPDATED_OXYGEN_LEVEL = "97";
+
+    // ── Vitals – Pulse Rate ──
+    public static final String VIT_PULSE_RATE         = "72";
+    public static final String VIT_UPDATED_PULSE_RATE = "75";
+
+    // ── Vitals – Respiratory Rate ──
+    public static final String VIT_RESPIRATORY_RATE         = "16";
+    public static final String VIT_UPDATED_RESPIRATORY_RATE = "18";
 
     // ── Vaccines ──
     public static final String VAX_VACCINE_NAME        = "Flu Vaccine";

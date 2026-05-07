@@ -123,166 +123,16 @@ pdf_html = f"""<!DOCTYPE html>
 </body>
 </html>"""
 
-# ── Email-safe HTML (table layout, all inline styles, no SVG) ──────────────
-def pct(n):
-    return f"{round((n / total) * 100) if total else 0}%"
-
-def stat_box(num, label, bg):
-    return (
-        f'<td width="25%" style="background:{bg};text-align:center;'
-        f'padding:18px 10px;border-radius:6px;">'
-        f'<div style="font-size:38px;font-weight:700;color:#fff;line-height:1">{num}</div>'
-        f'<div style="font-size:11px;color:rgba(255,255,255,.85);margin-top:5px;'
-        f'text-transform:uppercase;letter-spacing:1px">{label}</div>'
-        f'</td>'
-    )
-
-def email_badge(status):
-    c = COLORS.get(status, '#aaa')
-    return (f'<span style="background:{c};color:#fff;padding:3px 12px;'
-            f'border-radius:12px;font-size:11px;font-weight:700;'
-            f'letter-spacing:.5px;font-family:Arial,sans-serif">{status.upper()}</span>')
-
-email_rows = ''.join(
-    f'<tr style="background:{"#fafafa" if i % 2 == 0 else "#fff"}">'
-    f'<td style="padding:10px 14px;color:#aaa;font-size:12px;width:40px;font-family:Arial,sans-serif">{i}</td>'
-    f'<td style="padding:10px 14px;font-size:13px;font-family:Arial,sans-serif;color:#333">{r["name"]}</td>'
-    f'<td style="padding:10px 14px;width:110px">{email_badge(r["status"])}</td>'
-    f'<td style="padding:10px 14px;font-size:12px;color:#888;width:80px;font-family:Arial,sans-serif">{r["duration"]}</td>'
-    f'</tr>'
-    for i, r in enumerate(results, 1)
-)
-
-no_results_row = (
-    '<tr><td colspan="4" style="text-align:center;color:#aaa;padding:24px;'
-    'font-family:Arial,sans-serif;font-size:13px">No test results found</td></tr>'
-)
-
-p_pct = round((passed  / total * 100)) if total else 0
-f_pct = round((failed  / total * 100)) if total else 0
-s_pct = 100 - p_pct - f_pct if total else 0
-
-email_html = f"""<!DOCTYPE html>
-<html>
-<head><meta charset="UTF-8"></head>
-<body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif">
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:30px 0">
-<tr><td align="center">
-<table width="620" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)">
-
-  <!-- Header -->
-  <tr>
-    <td style="background:#2d3748;padding:24px 28px">
-      <div style="font-size:20px;font-weight:700;color:#fff">Regression Test Report</div>
-      <div style="font-size:12px;color:#a0aec0;margin-top:6px">
-        Run #{run_id} &nbsp;·&nbsp; Branch: {branch} &nbsp;·&nbsp; Commit: {sha} &nbsp;·&nbsp; {ts}
-      </div>
-      {'<div style="font-size:12px;color:#68d391;margin-top:6px;font-weight:600">&#x1F4F1; App installed on emulator: ' + version_label + '</div>' if version_label else ''}
-    </td>
-  </tr>
-
-  <!-- Stat boxes -->
-  <tr>
-    <td style="padding:20px 28px 10px">
-      <table width="100%" cellpadding="0" cellspacing="0">
-        <tr>
-          {stat_box(passed,  'Passed',  '#97cc64')}
-          <td width="8"></td>
-          {stat_box(failed,  'Failed',  '#fd5a3e')}
-          <td width="8"></td>
-          {stat_box(skipped, 'Skipped', '#a0aec0')}
-          <td width="8"></td>
-          {stat_box(total,   'Total',   '#4a5568')}
-        </tr>
-      </table>
-    </td>
-  </tr>
-
-  <!-- Proportional bar -->
-  <tr>
-    <td style="padding:14px 28px 20px">
-      <table width="100%" cellpadding="0" cellspacing="0" style="border-radius:4px;overflow:hidden;height:10px">
-        <tr>
-          {'<td style="background:#97cc64;height:10px" width="' + str(p_pct) + '%"></td>' if p_pct else ''}
-          {'<td style="background:#fd5a3e;height:10px" width="' + str(f_pct) + '%"></td>' if f_pct else ''}
-          {'<td style="background:#a0aec0;height:10px" width="' + str(s_pct) + '%"></td>' if s_pct else ''}
-          {'<td style="background:#eee;height:10px"></td>' if total == 0 else ''}
-        </tr>
-      </table>
-      <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:7px">
-        <tr>
-          <td style="font-size:11px;color:#97cc64;font-weight:600">&#9632; {p_pct}% Passed</td>
-          <td style="font-size:11px;color:#fd5a3e;font-weight:600;text-align:center">&#9632; {f_pct}% Failed</td>
-          <td style="font-size:11px;color:#a0aec0;font-weight:600;text-align:right">&#9632; {s_pct}% Skipped</td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-
-  <!-- Section label -->
-  <tr>
-    <td style="padding:0 28px 10px">
-      <div style="font-size:12px;font-weight:700;color:#718096;text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid #edf2f7;padding-bottom:8px">
-        Test Results
-      </div>
-    </td>
-  </tr>
-
-  <!-- Test table -->
-  <tr>
-    <td style="padding:0 28px 24px">
-      <table width="100%" cellpadding="0" cellspacing="0" style="font-size:13px;border-collapse:collapse">
-        <thead>
-          <tr style="background:#edf2f7">
-            <th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#718096;font-weight:700;width:40px">#</th>
-            <th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#718096;font-weight:700">Test Case</th>
-            <th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#718096;font-weight:700;width:110px">Status</th>
-            <th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#718096;font-weight:700;width:80px">Duration</th>
-          </tr>
-        </thead>
-        <tbody>
-          {email_rows if email_rows else no_results_row}
-        </tbody>
-      </table>
-    </td>
-  </tr>
-
-  <!-- Footer -->
-  <tr>
-    <td style="background:#f7fafc;padding:14px 28px;border-top:1px solid #edf2f7">
-      <div style="font-size:11px;color:#a0aec0;text-align:center">
-        Fluent Health &nbsp;·&nbsp; Automated Regression Suite &nbsp;·&nbsp; {ts}
-      </div>
-    </td>
-  </tr>
-
-</table>
-</td></tr>
-</table>
-</body>
-</html>"""
-
 with open('allure-summary.html', 'w') as f:
     f.write(pdf_html)
 
-with open('allure-email.html', 'w') as f:
-    f.write(email_html)
-
-# Write EMAIL_HTML to $GITHUB_ENV using a random delimiter so the bash
-# heredoc approach (which breaks when the file has no trailing newline) is
-# never needed in the workflow.
 github_env = os.environ.get('GITHUB_ENV', '')
 if github_env:
-    import random, string
-    delim = 'EMAILDELIM_' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=12))
     with open(github_env, 'a') as env_file:
-        # Email HTML body
-        env_file.write(f'EMAIL_HTML<<{delim}\n{email_html}\n{delim}\n')
-        # Counts — same source as the email body so subject always matches
         env_file.write(f'REPORT_PASSED={passed}\n')
         env_file.write(f'REPORT_FAILED={failed}\n')
         env_file.write(f'REPORT_SKIPPED={skipped}\n')
         env_file.write(f'REPORT_TOTAL={total}\n')
-    print(f"EMAIL_HTML and counts written to GITHUB_ENV")
+    print("Report counts written to GITHUB_ENV")
 
-print(f"Generated PDF HTML and email HTML ({passed} passed, {failed} failed, {skipped} skipped)")
+print(f"Generated PDF HTML ({passed} passed, {failed} failed, {skipped} skipped)")

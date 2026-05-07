@@ -85,6 +85,42 @@ public abstract class AndroidBaseTest extends BaseTest {
         pages.vitalsPage().confirmTimePicker();
     }
 
+    protected void fillBodyTemperatureMandatoryFields(PageManager pages, String temperature) {
+        pages.vitalsPage().enterTemperature(temperature);
+        pages.vitalsPage().dismissKeyboard();
+        pages.vitalsPage().tapDateField();
+        pages.vitalsPage().confirmDatePicker();
+        pages.vitalsPage().tapTimeField();
+        pages.vitalsPage().confirmTimePicker();
+    }
+
+    protected void fillOxygenSaturationMandatoryFields(PageManager pages, String level) {
+        pages.vitalsPage().enterOxygenLevel(level);
+        pages.vitalsPage().dismissKeyboard();
+        pages.vitalsPage().tapDateField();
+        pages.vitalsPage().confirmDatePicker();
+        pages.vitalsPage().tapTimeField();
+        pages.vitalsPage().confirmTimePicker();
+    }
+
+    protected void fillPulseRateMandatoryFields(PageManager pages, String bpm) {
+        pages.vitalsPage().enterBeatsPerMinute(bpm);
+        pages.vitalsPage().dismissKeyboard();
+        pages.vitalsPage().tapDateField();
+        pages.vitalsPage().confirmDatePicker();
+        pages.vitalsPage().tapTimeField();
+        pages.vitalsPage().confirmTimePicker();
+    }
+
+    protected void fillRespiratoryRateMandatoryFields(PageManager pages, String bpm) {
+        pages.vitalsPage().enterBreathsPerMinute(bpm);
+        pages.vitalsPage().dismissKeyboard();
+        pages.vitalsPage().tapDateField();
+        pages.vitalsPage().confirmDatePicker();
+        pages.vitalsPage().tapTimeField();
+        pages.vitalsPage().confirmTimePicker();
+    }
+
     protected void navigateToVaccines(PageManager pages) {
         pages.fluentHomePage().tapFabAndSelectAddHealthInfo();
         pages.vaccinesPage().scrollToVaccinesSection();

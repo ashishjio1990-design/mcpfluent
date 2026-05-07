@@ -31,6 +31,22 @@ public class VitalsPage extends BasePage {
     @AndroidFindBy(xpath = "//android.widget.EditText[@hint='Diastolic (mmHg)*']")
     private WebElement diastolicInput;
 
+    // ── Body Temperature form ─────────────────────────────────────────────────
+    @AndroidFindBy(xpath = "//android.widget.EditText[@hint='Temperature (in °C or °F)*']")
+    private WebElement temperatureInput;
+
+    // ── Oxygen Saturation Level form ──────────────────────────────────────────
+    @AndroidFindBy(xpath = "//android.widget.EditText[@hint='Oxygen saturation level (%)*']")
+    private WebElement oxygenInput;
+
+    // ── Pulse Rate form ───────────────────────────────────────────────────────
+    @AndroidFindBy(xpath = "//android.widget.EditText[@hint='Beats per minute*']")
+    private WebElement pulseRateInput;
+
+    // ── Respiratory Rate form ─────────────────────────────────────────────────
+    @AndroidFindBy(xpath = "//android.widget.EditText[@hint='Breaths per minute*']")
+    private WebElement respiratoryRateInput;
+
     // ── Date / Time pickers (selectionValueTv [1]=Date, [2]=Time) ─────────────
     @AndroidFindBy(xpath = "(//android.widget.TextView[@resource-id=\"com.fluenthealth.app:id/selectionValueTv\"])[1]")
     private WebElement dateField;
@@ -232,5 +248,164 @@ public class VitalsPage extends BasePage {
         log.info("Cancelling delete – tapping Cancel");
         tap(deleteConfirmCancelBtn);
         return this;
+    }
+
+    // ═════════════════════════════════════════════════════════════════════════
+    // Shared helper – record card text on any vital list screen
+    // ═════════════════════════════════════════════════════════════════════════
+
+    private String getVitalListCardText() {
+        String text = driver.findElement(AppiumBy.androidUIAutomator(
+                "new UiSelector().resourceId(\"com.fluenthealth.app:id/titleTV\").instance(1)")).getText();
+        log.info("Vital record card text: {}", text);
+        return text;
+    }
+
+    // ═════════════════════════════════════════════════════════════════════════
+    // Body Temperature
+    // ═════════════════════════════════════════════════════════════════════════
+
+    public VitalsPage tapBodyTemperature() {
+        log.info("Tapping Body Temperature card");
+        driver.findElement(AppiumBy.androidUIAutomator(
+                "new UiSelector().resourceId(\"com.fluenthealth.app:id/titleTV\").text(\"Body Temperature\")")).click();
+        return this;
+    }
+
+    public boolean isBodyTemperatureListVisible() {
+        return waitForVisible(contentRecyclerView);
+    }
+
+    public boolean isBodyTemperatureFormVisible() {
+        return waitForVisible(temperatureInput);
+    }
+
+    public VitalsPage enterTemperature(String value) {
+        log.info("Entering temperature: {}", value);
+        tap(temperatureInput);
+        temperatureInput.sendKeys(value);
+        return this;
+    }
+
+    public VitalsPage clearAndEnterTemperature(String value) {
+        log.info("Updating temperature to: {}", value);
+        tap(temperatureInput);
+        clearAndType(temperatureInput, value);
+        return this;
+    }
+
+    public String getBodyTemperatureCardText() {
+        return getVitalListCardText();
+    }
+
+    // ═════════════════════════════════════════════════════════════════════════
+    // Oxygen Saturation Level
+    // ═════════════════════════════════════════════════════════════════════════
+
+    public VitalsPage tapOxygenSaturationLevel() {
+        log.info("Tapping Oxygen Saturation Level card");
+        driver.findElement(AppiumBy.androidUIAutomator(
+                "new UiSelector().resourceId(\"com.fluenthealth.app:id/titleTV\").text(\"Oxygen Saturation Level\")")).click();
+        return this;
+    }
+
+    public boolean isOxygenSaturationListVisible() {
+        return waitForVisible(contentRecyclerView);
+    }
+
+    public boolean isOxygenSaturationFormVisible() {
+        return waitForVisible(oxygenInput);
+    }
+
+    public VitalsPage enterOxygenLevel(String value) {
+        log.info("Entering oxygen saturation level: {}", value);
+        tap(oxygenInput);
+        oxygenInput.sendKeys(value);
+        return this;
+    }
+
+    public VitalsPage clearAndEnterOxygenLevel(String value) {
+        log.info("Updating oxygen saturation to: {}", value);
+        tap(oxygenInput);
+        clearAndType(oxygenInput, value);
+        return this;
+    }
+
+    public String getOxygenSaturationCardText() {
+        return getVitalListCardText();
+    }
+
+    // ═════════════════════════════════════════════════════════════════════════
+    // Pulse Rate
+    // ═════════════════════════════════════════════════════════════════════════
+
+    public VitalsPage tapPulseRate() {
+        log.info("Tapping Pulse Rate card");
+        driver.findElement(AppiumBy.androidUIAutomator(
+                "new UiSelector().resourceId(\"com.fluenthealth.app:id/titleTV\").text(\"Pulse Rate\")")).click();
+        return this;
+    }
+
+    public boolean isPulseRateListVisible() {
+        return waitForVisible(contentRecyclerView);
+    }
+
+    public boolean isPulseRateFormVisible() {
+        return waitForVisible(pulseRateInput);
+    }
+
+    public VitalsPage enterBeatsPerMinute(String value) {
+        log.info("Entering pulse rate: {}", value);
+        tap(pulseRateInput);
+        pulseRateInput.sendKeys(value);
+        return this;
+    }
+
+    public VitalsPage clearAndEnterBeatsPerMinute(String value) {
+        log.info("Updating pulse rate to: {}", value);
+        tap(pulseRateInput);
+        clearAndType(pulseRateInput, value);
+        return this;
+    }
+
+    public String getPulseRateCardText() {
+        return getVitalListCardText();
+    }
+
+    // ═════════════════════════════════════════════════════════════════════════
+    // Respiratory Rate
+    // ═════════════════════════════════════════════════════════════════════════
+
+    public VitalsPage tapRespiratoryRate() {
+        log.info("Tapping Respiratory Rate card");
+        driver.findElement(AppiumBy.androidUIAutomator(
+                "new UiSelector().resourceId(\"com.fluenthealth.app:id/titleTV\").text(\"Respiratory Rate\")")).click();
+        return this;
+    }
+
+    public boolean isRespiratoryRateListVisible() {
+        return waitForVisible(contentRecyclerView);
+    }
+
+    public boolean isRespiratoryRateFormVisible() {
+        return waitForVisible(respiratoryRateInput);
+    }
+
+    public VitalsPage enterBreathsPerMinute(String value) {
+        log.info("Entering respiratory rate: {}", value);
+        tap(respiratoryRateInput);
+        respiratoryRateInput.sendKeys(value);
+        return this;
+    }
+
+    public VitalsPage clearAndEnterBreathsPerMinute(String value) {
+        log.info("Updating respiratory rate to: {}", value);
+        tap(respiratoryRateInput);
+        clearAndType(respiratoryRateInput, value);
+        return this;
+    }
+
+    public String getRespiratoryRateCardText() {
+        return getVitalListCardText();
     }
 }

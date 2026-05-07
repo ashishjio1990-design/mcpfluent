@@ -112,15 +112,11 @@ jobs:
           path: evidence/
           retention-days: 14
 
-      - name: Send per-test failure emails (shard ${{ matrix.shard }})
+      - name: Send per-test failure Slack notifications (shard ${{ matrix.shard }})
         if: always()
         env:
-          MAIL_SERVER: ${{ secrets.MAIL_SERVER }}
-          MAIL_PORT: ${{ secrets.MAIL_PORT }}
-          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
-          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
-          MAIL_TO: ${{ secrets.MAIL_TO }}
-        run: python3 scripts/send_failure_emails.py
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: python3 scripts/send_failure_slack.py
 
 # ── Job 3: merge results, generate report, send email ─────────────────────
   report:
@@ -154,7 +150,7 @@ jobs:
           path: target/site/allure-report/
           retention-days: 14
 
-      - name: Generate PDF and email report
+      - name: Generate PDF report
         run: |
           python3 scripts/generate_pdf_report.py
           google-chrome --headless --no-sandbox --disable-gpu \
@@ -164,15 +160,8 @@ jobs:
             --virtual-time-budget=3000 \
             "file://$(pwd)/allure-summary.html"
 
-      - name: Send email with combined report
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: ${{ secrets.MAIL_SERVER }}
-          server_port: ${{ secrets.MAIL_PORT }}
-          username: ${{ secrets.MAIL_USERNAME }}
-          password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "[Parallel/${{ inputs.emulator_count }}] Run #${{ github.run_number }} | ✅ ${{ env.REPORT_PASSED }} Passed / ❌ ${{ env.REPORT_FAILED }} Failed / Total ${{ env.REPORT_TOTAL }}"
-          to: ${{ secrets.MAIL_TO }}
-          from: Fluent Regression CI <${{ secrets.MAIL_USERNAME }}>
-          html_body: ${{ env.EMAIL_HTML }}
-          attachments: allure-report.pdf
+      - name: Send Slack summary notification
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          GITHUB_WORKFLOW: ${{ github.workflow }}
+        run: python3 scripts/send_summary_slack.py
