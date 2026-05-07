@@ -115,7 +115,8 @@ jobs:
       - name: Send per-test failure Slack notifications (shard ${{ matrix.shard }})
         if: always()
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
         run: python3 scripts/send_failure_slack.py
 
 # ── Job 3: merge results, generate report, send email ─────────────────────
@@ -162,6 +163,7 @@ jobs:
 
       - name: Send Slack summary notification
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
           GITHUB_WORKFLOW: ${{ github.workflow }}
         run: python3 scripts/send_summary_slack.py

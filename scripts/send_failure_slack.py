@@ -7,7 +7,8 @@ import sys
 import urllib.request
 from pathlib import Path
 
-SLACK_WEBHOOK_URL = os.environ.get("SLACK_WEBHOOK_URL", "")
+SLACK_BOT_TOKEN   = os.environ.get("SLACK_BOT_TOKEN", "")
+SLACK_CHANNEL     = os.environ.get("SLACK_CHANNEL", "")
 APK_VERSION       = os.environ.get("APK_VERSION", "unknown")
 APK_BUILD         = os.environ.get("APK_BUILD", "unknown")
 GITHUB_REPO       = os.environ.get("GITHUB_REPOSITORY", "")
@@ -17,8 +18,8 @@ RUN_NUMBER        = os.environ.get("GITHUB_RUN_NUMBER", "")
 workspace   = os.environ.get("GITHUB_WORKSPACE", ".")
 failure_dir = Path(workspace) / "evidence" / "failures"
 
-if not SLACK_WEBHOOK_URL:
-    print("SLACK_WEBHOOK_URL not set — skipping Slack failure notifications.")
+if not SLACK_BOT_TOKEN or not SLACK_CHANNEL:
+    print("SLACK_BOT_TOKEN or SLACK_CHANNEL not set — skipping Slack failure notifications.")
     sys.exit(0)
 
 if not failure_dir.exists():
@@ -34,15 +35,21 @@ run_url = f"https://github.com/{GITHUB_REPO}/actions/runs/{GITHUB_RUN_ID}"
 
 
 def send_slack(payload):
+    payload["channel"] = SLACK_CHANNEL
     data = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(
-        SLACK_WEBHOOK_URL,
+        "https://slack.com/api/chat.postMessage",
         data=data,
-        headers={"Content-Type": "application/json"},
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {SLACK_BOT_TOKEN}",
+        },
         method="POST",
     )
     with urllib.request.urlopen(req, timeout=15) as resp:
-        return resp.read()
+        body = json.loads(resp.read())
+        if not body.get("ok"):
+            raise RuntimeError(f"Slack API error: {body.get('error')}")
 
 
 print(f"Found {len(failures)} failure(s). Sending Slack notifications...")
