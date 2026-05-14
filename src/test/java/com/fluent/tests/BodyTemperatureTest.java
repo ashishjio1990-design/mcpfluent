@@ -1,15 +1,7 @@
 package com.fluent.tests;
 
-import com.fluent.annotations.RetryOnFailure;
-import com.fluent.annotations.SkipAppReset;
-import com.fluent.pages.PageManager;
-import com.fluent.testdata.TestData;
-import com.fluent.utils.AndroidBaseTest;
-import io.qameta.allure.Description;
-import io.qameta.allure.Feature;
-import io.qameta.allure.Severity;
-import io.qameta.allure.SeverityLevel;
-import io.qameta.allure.Story;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -19,12 +11,24 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 
-import static org.junit.jupiter.api.Assertions.*;
+import com.fluent.annotations.RetryOnFailure;
+import com.fluent.annotations.SkipAppReset;
+import com.fluent.pages.PageManager;
+import com.fluent.testdata.TestData;
+import com.fluent.utils.AndroidBaseTest;
+
+import io.qameta.allure.Description;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
+import io.qameta.allure.Story;
 
 @Feature("Health Info – Vitals – Body Temperature")
 @Execution(ExecutionMode.SAME_THREAD)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class BodyTemperatureTest extends AndroidBaseTest {
+
+        //New set of lines getting commited over here
 
     private PageManager pages;
 
